@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Stok Yönetimi - LİNKUP CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stock-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .badge-in-stock { background: rgba(16,185,129,0.12); color: #10b981; }
+        .badge-low-stock { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .badge-out-stock { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .category-chip {
+            display: inline-block; padding: 4px 12px; border-radius: 2rem;
+            font-size: 0.72rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; border: 2px solid transparent;
+        }
+        .category-chip.active, .category-chip:hover {
+            border-color: var(--primary); color: var(--primary); background: rgba(37,99,235,0.07);
+        }
+        .stock-row:hover { background: var(--bg) !important; }
+        .progress-bar-wrap { background: var(--border); border-radius: 10px; height: 6px; width: 80px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 10px; transition: width 0.4s; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-overlay.active { display: flex; }
+        .form-modal { background: var(--card-bg); border-radius: 1.2rem; padding: 2rem; width: min(520px, 95vw); max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <link rel="apple-touch-icon" href="img/logo.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+</head>
+
+<body>
+    <div class="dashboard" id="main-dashboard" style="display:none;">
+        <div id="sidebar-target"></div>
+        <main class="main-content">
+            <div id="top-nav-bar"></div>
+
+            <div class="header" style="margin-bottom: 2rem;">
+                <div>
+                    <h1 style="font-size: 1.9rem; margin-bottom: 0.3rem;">Stok Yönetimi</h1>
+                    <p style="color: var(--text-light); font-weight: 500;">Ürün, malzeme ve cihaz stoklarınızı yönetin.</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button onclick="exportStockExcel()" class="btn btn-secondary" style="display:flex;align-items:center;gap:0.4rem;">
+                        <i class="fa-solid fa-file-excel"></i> Excel'e Aktar
+                    </button>
+                    <button onclick="openStockModal()" class="btn btn-primary" style="display:flex;align-items:center;gap:0.5rem;">
+                        <i class="fa-solid fa-plus"></i> Yeni Ürün Ekle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+                <div class="stat-card animate-fade-in" style="border-top: 4px solid var(--primary); padding: 1.25rem;">
+                    <p style="font-size: 0.72rem; color: var(--text-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Toplam Ürün Çeşidi</p>
+                    <h2 id="stat-total" style="font-size: 2.2rem; color: var(--text); margin-top: 0.4rem; font-weight: 800;">0</h2>
+                </div>
+                <div class="stat-card animate-fade-in" style="border-top: 4px solid #10b981; padding: 1.25rem;">
+                    <p style="font-size: 0.72rem; color: var(--text-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Stokta Var</p>
+                    <h2 id="stat-in-stock" style="font-size: 2.2rem; color: #10b981; margin-top: 0.4rem; font-weight: 800;">0</h2>
+                </div>
+                <div class="stat-card animate-fade-in" style="border-top: 4px solid #f59e0b; padding: 1.25rem;">
+                    <p style="font-size: 0.72rem; color: var(--text-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Kritik Seviye</p>
+                    <h2 id="stat-low" style="font-size: 2.2rem; color: #f59e0b; margin-top: 0.4rem; font-weight: 800;">0</h2>
+                </div>
+                <div class="stat-card animate-fade-in" style="border-top: 4px solid #ef4444; padding: 1.25rem;">
+                    <p style="font-size: 0.72rem; color: var(--text-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Stok Dışı</p>
+                    <h2 id="stat-out" style="font-size: 2.2rem; color: #ef4444; margin-top: 0.4rem; font-weight: 800;">0</h2>
+                </div>
+                <div class="stat-card animate-fade-in" style="border-top: 4px solid #8b5cf6; padding: 1.25rem;">
+                    <p style="font-size: 0.72rem; color: var(--text-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Toplam Stok Değeri (USD)</p>
+                    <h2 id="stat-value" style="font-size: 2.2rem; color: #8b5cf6; margin-top: 0.4rem; font-weight: 800;">$0</h2>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="content-card" style="padding: 1.5rem;">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> Kategori Dağılımı
+                    </h3>
+                    <div style="height: 220px; position: relative;; width: 100%;">
+<canvas id="stockCategoryChart"></canvas></div>
+                </div>
+                <div class="content-card" style="padding: 1.5rem;">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-chart-bar" style="color: #f59e0b;"></i> Stok Durumu Özeti
+                    </h3>
+                    <div style="height: 220px; position: relative;; width: 100%;">
+<canvas id="stockStatusChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Filters & Search -->
+            <div class="content-card animate-fade-in" style="overflow: hidden;">
+                <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-light);">Kategori:</span>
+                        <span class="category-chip active" id="cat-all" onclick="filterStockByCategory('')">Tümü</span>
+                        <span class="category-chip" id="cat-makine" onclick="filterStockByCategory('Makine')">🏭 Makine</span>
+                        <span class="category-chip" id="cat-yedek" onclick="filterStockByCategory('Yedek Parça')">🔧 Yedek Parça</span>
+                        <span class="category-chip" id="cat-malzeme" onclick="filterStockByCategory('Sarf Malzeme')">📦 Sarf Malzeme</span>
+                        <span class="category-chip" id="cat-ekipman" onclick="filterStockByCategory('Ekipman')">🖥️ Ekipman</span>
+                        <span class="category-chip" id="cat-diger" onclick="filterStockByCategory('Diğer')">📁 Diğer</span>
+                    </div>
+                    <div style="position: relative; min-width: 220px;">
+                        <i class="fa-solid fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 0.8rem;"></i>
+                        <input type="text" id="stock-search" oninput="renderStockTable()" placeholder="Ürün ara..." style="width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.2rem; border: 1px solid var(--border); border-radius: 2rem; font-size: 0.8rem; outline: none; background: var(--bg);">
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: rgba(0,0,0,0.03); border-bottom: 2px solid var(--border);">
+                            <tr>
+                                <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Ürün Kodu</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Ürün Adı / Açıklaması</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Kategori</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Miktar</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Min. Seviye</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Stok Durumu</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: right; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Birim Fiyat (USD)</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: right; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">Toplam Değer</th>
+                                <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 800;">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body">
+                            <tr><td colspan="9" style="text-align:center; padding: 3rem; color: var(--text-light);">Henüz stok kaydı bulunmamaktadır.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Stock Modal -->
+    <div class="modal-overlay" id="stock-modal">
+        <div class="form-modal">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 id="stock-modal-title" style="font-size: 1.2rem; font-weight: 800;">Yeni Ürün Ekle</h2>
+                <i class="fa-solid fa-times" onclick="closeStockModal()" style="cursor: pointer; font-size: 1.3rem; color: var(--text-light);"></i>
+            </div>
+            <form id="stock-form" onsubmit="handleStockSubmit(event)">
+                <input type="hidden" id="edit-stock-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Ürün Adı / Açıklaması *</label>
+                        <input type="text" id="stock-name" class="form-control" required placeholder="Ürün adını girin...">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Ürün Kodu</label>
+                        <input type="text" id="stock-code" class="form-control" placeholder="PRD-001">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Kategori</label>
+                        <select id="stock-category" class="form-control">
+                            <option value="Makine">🏭 Makine</option>
+                            <option value="Yedek Parça">🔧 Yedek Parça</option>
+                            <option value="Sarf Malzeme">📦 Sarf Malzeme</option>
+                            <option value="Ekipman">🖥️ Ekipman</option>
+                            <option value="Diğer">📁 Diğer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Mevcut Miktar *</label>
+                        <input type="number" id="stock-qty" class="form-control" required min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Minimum Stok Seviyesi</label>
+                        <input type="number" id="stock-min" class="form-control" min="0" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Birim</label>
+                        <select id="stock-unit" class="form-control">
+                            <option value="Adet">Adet</option>
+                            <option value="Kutu">Kutu</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Lt">Lt</option>
+                            <option value="Set">Set</option>
+                            <option value="Metre">Metre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Birim Fiyat (USD)</label>
+                        <input type="number" id="stock-price" class="form-control" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Tedarikçi / Marka</label>
+                        <input type="text" id="stock-supplier" class="form-control" placeholder="Tedarikçi adı...">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Lokasyon / Depo</label>
+                        <input type="text" id="stock-location" class="form-control" placeholder="A-Raf-1">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Notlar</label>
+                        <textarea id="stock-notes" class="form-control" rows="2" placeholder="Ek notlar..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" onclick="closeStockModal()" class="btn btn-secondary">İptal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Adjust Quantity Modal -->
+    <div class="modal-overlay" id="adjust-modal">
+        <div class="form-modal" style="max-width: 380px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.1rem; font-weight: 800;">Stok Hareketi</h2>
+                <i class="fa-solid fa-times" onclick="closeAdjustModal()" style="cursor: pointer; font-size: 1.3rem; color: var(--text-light);"></i>
+            </div>
+            <p id="adjust-product-name" style="font-weight: 700; color: var(--primary); margin-bottom: 1rem;"></p>
+            <div class="form-group">
+                <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">İşlem Türü</label>
+                <select id="adjust-type" class="form-control">
+                    <option value="in">📥 Stok Girişi (Ekle)</option>
+                    <option value="out">📤 Stok Çıkışı (Çıkar)</option>
+                    <option value="set">🔄 Sayım Güncelle (Set Et)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Miktar *</label>
+                <input type="number" id="adjust-qty" class="form-control" min="0" value="1">
+            </div>
+            <div class="form-group">
+                <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Açıklama</label>
+                <input type="text" id="adjust-note" class="form-control" placeholder="Hareket açıklaması...">
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button onclick="closeAdjustModal()" class="btn btn-secondary">İptal</button>
+                <button onclick="applyAdjustment()" class="btn btn-primary"><i class="fa-solid fa-check"></i> Uygula</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/visits.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/marketing.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/announcements.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let stockItems = [];
+        let currentFilter = '';
+        let editingStockId = null;
+        let adjustingStockId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStock();
+            renderTopNavBar();
+        });
+
+        function loadStock() {
+            try { stockItems = JSON.parse(localStorage.getItem('crm_stock') || '[]'); } catch(e) { stockItems = []; }
+            // Add demo data if empty
+            if (stockItems.length === 0) {
+                stockItems = [
+                    { id: 1, code: 'AOB-330', name: 'Aobead Pulisi DSMART 330 Baskı Makinesi', category: 'Makine', qty: 3, minQty: 1, unit: 'Adet', price: 340000, supplier: 'Aobead Pulisi', location: 'Depo-A', notes: '' },
+                    { id: 2, code: 'SUN-UV-60', name: 'Sunthinks UV 60cm Geniş Format Yazıcı', category: 'Makine', qty: 1, minQty: 1, unit: 'Adet', price: 180000, supplier: 'Sunthinks', location: 'Depo-A', notes: '' },
+                    { id: 3, code: 'INK-UV-WHT', name: 'UV Beyaz Mürekkep 1L', category: 'Sarf Malzeme', qty: 24, minQty: 10, unit: 'Lt', price: 180, supplier: 'Aobead Pulisi', location: 'B-Raf-2', notes: 'Soğuk depolamak gerekir' },
+                    { id: 4, code: 'INK-UV-CMYK', name: 'UV CMYK Mürekkep Seti 4x1L', category: 'Sarf Malzeme', qty: 4, minQty: 5, unit: 'Set', price: 650, supplier: 'Robotjet', location: 'B-Raf-2', notes: '' },
+                    { id: 5, code: 'HEAD-S3200', name: 'Epson S3200 Baskı Kafası', category: 'Yedek Parça', qty: 0, minQty: 2, unit: 'Adet', price: 2800, supplier: 'Aobead Pulisi', location: 'C-Raf-1', notes: 'Kritik yedek parça' },
+                    { id: 6, code: 'BELT-CONV', name: 'Konveyör Kayışı 330mm', category: 'Yedek Parça', qty: 6, minQty: 3, unit: 'Adet', price: 320, supplier: 'Lokal Tedarikçi', location: 'C-Raf-2', notes: '' },
+                    { id: 7, code: 'LBL-PET-A4', name: 'PET Etiket Malzeme A4 (500lü)', category: 'Sarf Malzeme', qty: 80, minQty: 20, unit: 'Adet', price: 45, supplier: 'Malzeme AŞ', location: 'D-Raf-1', notes: '' },
+                    { id: 8, code: 'LAPTOP-CTRL', name: 'Kontrol Laptopu (Endüstriyel)', category: 'Ekipman', qty: 2, minQty: 1, unit: 'Adet', price: 4500, supplier: 'Lenovo TR', location: 'Ofis', notes: 'Makine kontrol yazılımı yüklü' },
+                ];
+                saveStock();
+            }
+            renderStockStats();
+            renderStockTable();
+            renderStockCharts();
+        }
+
+        function saveStock() {
+            localStorage.setItem('crm_stock', JSON.stringify(stockItems));
+        }
+
+        function getStockStatus(item) {
+            if (item.qty === 0) return { text: 'Stok Dışı', cls: 'badge-out-stock' };
+            if (item.qty <= item.minQty) return { text: 'Kritik Seviye', cls: 'badge-low-stock' };
+            return { text: 'Stokta Var', cls: 'badge-in-stock' };
+        }
+
+        function renderStockStats() {
+            document.getElementById('stat-total').textContent = stockItems.length;
+            document.getElementById('stat-in-stock').textContent = stockItems.filter(i => i.qty > i.minQty).length;
+            document.getElementById('stat-low').textContent = stockItems.filter(i => i.qty > 0 && i.qty <= i.minQty).length;
+            document.getElementById('stat-out').textContent = stockItems.filter(i => i.qty === 0).length;
+            const totalVal = stockItems.reduce((sum, i) => sum + (i.qty * i.price), 0);
+            document.getElementById('stat-value').textContent = '$' + totalVal.toLocaleString('tr-TR');
+        }
+
+        function renderStockTable() {
+            const search = (document.getElementById('stock-search')?.value || '').toLowerCase();
+            const tbody = document.getElementById('stock-table-body');
+            let list = stockItems;
+            if (currentFilter) list = list.filter(i => i.category === currentFilter);
+            if (search) list = list.filter(i => i.name.toLowerCase().includes(search) || (i.code||'').toLowerCase().includes(search) || (i.supplier||'').toLowerCase().includes(search));
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 3rem; color: var(--text-light);">Eşleşen ürün bulunamadı.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(item => {
+                const st = getStockStatus(item);
+                const pct = item.minQty > 0 ? Math.min(100, (item.qty / (item.minQty * 3)) * 100) : 100;
+                const barColor = item.qty === 0 ? '#ef4444' : item.qty <= item.minQty ? '#f59e0b' : '#10b981';
+                const totalVal = (item.qty * item.price).toLocaleString('tr-TR');
+                return `
+                <tr class="stock-row" style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 1rem 1.2rem; font-weight:700; color: var(--primary); font-size:0.82rem;">${item.code || '-'}</td>
+                    <td style="padding: 1rem 1.2rem;">
+                        <div style="font-weight:700; font-size:0.9rem;">${item.name}</div>
+                        ${item.supplier ? `<div style="font-size:0.72rem;color:var(--text-light);">${item.supplier} · ${item.location||''}</div>` : ''}
+                    </td>
+                    <td style="padding: 1rem 1.2rem; font-size:0.82rem; color:var(--text-light);">${item.category}</td>
+                    <td style="padding: 1rem 1.2rem; text-align:center;">
+                        <div style="font-size:1.1rem;font-weight:800;color:${barColor};">${item.qty}</div>
+                        <div style="font-size:0.68rem;color:var(--text-light);">${item.unit}</div>
+                        <div class="progress-bar-wrap" style="margin: 4px auto 0;"><div class="progress-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+                    </td>
+                    <td style="padding: 1rem 1.2rem; text-align:center; font-size:0.82rem; color:var(--text-light);">${item.minQty} ${item.unit}</td>
+                    <td style="padding: 1rem 1.2rem; text-align:center;"><span class="stock-badge ${st.cls}">${st.text}</span></td>
+                    <td style="padding: 1rem 1.2rem; text-align:right; font-weight:700; font-size:0.88rem;">$${item.price.toLocaleString('tr-TR')}</td>
+                    <td style="padding: 1rem 1.2rem; text-align:right; font-weight:700; font-size:0.88rem; color:#8b5cf6;">$${totalVal}</td>
+                    <td style="padding: 1rem 1.2rem; text-align:center;">
+                        <div style="display:flex; gap:0.4rem; justify-content:center;">
+                            <button onclick="openAdjustModal(${item.id})" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.72rem;" title="Stok Hareketi"><i class="fa-solid fa-arrows-up-down"></i></button>
+                            <button onclick="openStockModal(${item.id})" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.72rem;" title="Düzenle"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteStockItem(${item.id})" class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.72rem;" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderStockCharts() {
+            // Category pie chart
+            const catCounts = {};
+            stockItems.forEach(i => { catCounts[i.category] = (catCounts[i.category] || 0) + 1; });
+            const catCtx = document.getElementById('stockCategoryChart')?.getContext('2d');
+            if (catCtx && typeof Chart !== 'undefined') {
+                if (window._catChart) window._catChart.destroy();
+                window._catChart = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(catCounts),
+                        datasets: [{ data: Object.values(catCounts), backgroundColor: ['#2563eb','#10b981','#f59e0b','#8b5cf6','#64748b'], borderWidth: 0 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { weight: 'bold' } } } } }
+                });
+            }
+
+            // Status bar chart
+            const statusCounts = [
+                stockItems.filter(i => i.qty > i.minQty).length,
+                stockItems.filter(i => i.qty > 0 && i.qty <= i.minQty).length,
+                stockItems.filter(i => i.qty === 0).length
+            ];
+            const sCtx = document.getElementById('stockStatusChart')?.getContext('2d');
+            if (sCtx && typeof Chart !== 'undefined') {
+                if (window._statusChart) window._statusChart.destroy();
+                window._statusChart = new Chart(sCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Stokta Var', 'Kritik Seviye', 'Stok Dışı'],
+                        datasets: [{ data: statusCounts, backgroundColor: ['#10b981','#f59e0b','#ef4444'], borderRadius: 8 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+                });
+            }
+        }
+
+        function filterStockByCategory(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+            const activeId = cat ? 'cat-' + cat.replace(/\s+/g,'-').toLowerCase() : 'cat-all';
+            const activeEl = cat === '' ? document.getElementById('cat-all') :
+                document.querySelector(`.category-chip[onclick="filterStockByCategory('${cat}')"]`);
+            if (activeEl) activeEl.classList.add('active');
+            renderStockTable();
+        }
+
+        function openStockModal(id = null) {
+            editingStockId = id;
+            document.getElementById('stock-modal-title').textContent = id ? 'Ürün Düzenle' : 'Yeni Ürün Ekle';
+            document.getElementById('stock-form').reset();
+            if (id) {
+                const item = stockItems.find(i => i.id === id);
+                if (!item) return;
+                document.getElementById('edit-stock-id').value = id;
+                document.getElementById('stock-name').value = item.name;
+                document.getElementById('stock-code').value = item.code || '';
+                document.getElementById('stock-category').value = item.category;
+                document.getElementById('stock-qty').value = item.qty;
+                document.getElementById('stock-min').value = item.minQty;
+                document.getElementById('stock-unit').value = item.unit;
+                document.getElementById('stock-price').value = item.price;
+                document.getElementById('stock-supplier').value = item.supplier || '';
+                document.getElementById('stock-location').value = item.location || '';
+                document.getElementById('stock-notes').value = item.notes || '';
+            }
+            document.getElementById('stock-modal').classList.add('active');
+        }
+
+        function closeStockModal() { document.getElementById('stock-modal').classList.remove('active'); }
+
+        function handleStockSubmit(e) {
+            e.preventDefault();
+            const data = {
+                id: editingStockId || Date.now(),
+                name: document.getElementById('stock-name').value,
+                code: document.getElementById('stock-code').value,
+                category: document.getElementById('stock-category').value,
+                qty: parseInt(document.getElementById('stock-qty').value) || 0,
+                minQty: parseInt(document.getElementById('stock-min').value) || 0,
+                unit: document.getElementById('stock-unit').value,
+                price: parseFloat(document.getElementById('stock-price').value) || 0,
+                supplier: document.getElementById('stock-supplier').value,
+                location: document.getElementById('stock-location').value,
+                notes: document.getElementById('stock-notes').value,
+            };
+            if (editingStockId) {
+                stockItems = stockItems.map(i => i.id === editingStockId ? data : i);
+            } else {
+                stockItems.push(data);
+            }
+            saveStock();
+            closeStockModal();
+            renderStockStats();
+            renderStockTable();
+            renderStockCharts();
+        }
+
+        function deleteStockItem(id) {
+            if (!confirm('Bu ürün stoktan silinecek. Emin misiniz?')) return;
+            stockItems = stockItems.filter(i => i.id !== id);
+            saveStock();
+            renderStockStats();
+            renderStockTable();
+            renderStockCharts();
+        }
+
+        function openAdjustModal(id) {
+            adjustingStockId = id;
+            const item = stockItems.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('adjust-product-name').textContent = item.name;
+            document.getElementById('adjust-qty').value = 1;
+            document.getElementById('adjust-note').value = '';
+            document.getElementById('adjust-type').value = 'in';
+            document.getElementById('adjust-modal').classList.add('active');
+        }
+
+        function closeAdjustModal() { document.getElementById('adjust-modal').classList.remove('active'); }
+
+        function applyAdjustment() {
+            const type = document.getElementById('adjust-type').value;
+            const qty = parseInt(document.getElementById('adjust-qty').value) || 0;
+            const item = stockItems.find(i => i.id === adjustingStockId);
+            if (!item || qty < 0) return;
+            if (type === 'in') item.qty += qty;
+            else if (type === 'out') item.qty = Math.max(0, item.qty - qty);
+            else item.qty = qty;
+            saveStock();
+            closeAdjustModal();
+            renderStockStats();
+            renderStockTable();
+            renderStockCharts();
+        }
+
+        function exportStockExcel() {
+            if (typeof XLSX === 'undefined') { alert('Excel kütüphanesi yüklenmedi.'); return; }
+            const wb = XLSX.utils.book_new();
+            const data = [['Ürün Kodu','Ürün Adı','Kategori','Miktar','Min.Seviye','Birim','Birim Fiyat (USD)','Toplam Değer (USD)','Tedarikçi','Lokasyon','Durum']];
+            stockItems.forEach(i => {
+                const st = getStockStatus(i).text;
+                data.push([i.code||'-', i.name, i.category, i.qty, i.minQty, i.unit, i.price, i.qty*i.price, i.supplier||'-', i.location||'-', st]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Stok');
+            XLSX.writeFile(wb, 'Stok_Listesi_' + new Date().toLocaleDateString('tr-TR').replace(/\./g,'-') + '.xlsx');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+/* 
+ * app.js - Application Init and Orchestration 
+ */
+
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+    // Inject Modals immediately to ensure buttons work
+    if (typeof injectModals === 'function') {
+        injectModals();
+    }
+
+    initTheme();
+
+    if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
+        Chart.register(ChartDataLabels);
+        Chart.defaults.set('plugins.datalabels', {
+            color: '#fff',
+            textStrokeColor: '#000',
+            textStrokeWidth: 2,
+            font: { weight: 'bold', size: 12 },
+            formatter: (value, ctx) => {
+                let sum = 0;
+                let dataArr = ctx.chart.data.datasets[0].data;
+                dataArr.forEach(data => sum += Number(data));
+                if (sum === 0 || value === 0) return '';
+                let percentage = (Number(value) * 100 / sum).toFixed(1) + "%";
+                return percentage;
+            }
+        });
+    }
+
+    // Ensure users exist
+    let rawUsers = [];
+    try { rawUsers = JSON.parse(localStorage.getItem('crm_users') || '[]'); } catch (e) { }
+    let cleanUsers = rawUsers.filter(u => u && u.name);
+    if (cleanUsers.length === 0) {
+        cleanUsers = [{ name: 'Sistem Yöneticisi', email: 'admin@admin.com', password: '123', role: 'admin' }];
+    }
+    if (rawUsers.length !== cleanUsers.length) {
+        localStorage.setItem('crm_users', JSON.stringify(cleanUsers));
+    }
+
+    if (currentUser) {
+        // Log online status
+        let onlineUsers = {};
+        try { onlineUsers = JSON.parse(localStorage.getItem('crm_online_users') || '{}'); } catch (e) { onlineUsers = {}; }
+        onlineUsers[currentUser.email] = true;
+        localStorage.setItem('crm_online_users', JSON.stringify(onlineUsers));
+
+        // Start services
+        updateTime();
+        setInterval(updateTime, 1000);
+        fetchExchangeRates();
+        setInterval(fetchExchangeRates, 1000 * 60 * 30);
+        fetchWeather();
+        setInterval(fetchWeather, 1000 * 60 * 30);
+
+        setInterval(() => {
+            if (typeof updateStats === 'function') updateStats();
+            if (typeof updateUsersStatusPane === 'function') updateUsersStatusPane();
+        }, 10000);
+
+        // Pre-fill email if remembered (for next visit context, though logged in)
+        const rememberedEmail = localStorage.getItem('crm_remembered_email');
+        if (rememberedEmail && document.getElementById('login-email')) {
+            document.getElementById('login-email').value = rememberedEmail;
+            document.getElementById('login-remember').checked = true;
+        }
+
+        // Display Dashboard
+        showDashboard();
+        return;
+    }
+
+    // Show Login
+    const auth = document.getElementById('auth-container');
+    const dash = document.getElementById('main-dashboard');
+    if (auth) auth.style.display = 'flex';
+    if (dash) dash.style.display = 'none';
+}
+
+function showDashboard() {
+    const auth = document.getElementById('auth-container');
+    const dash = document.getElementById('main-dashboard');
+    if (auth) auth.style.display = 'none';
+    if (dash) dash.style.display = 'flex';
+
+    if (currentUser) {
+        // Enforce HOME (index.html) on fresh refresh/load as requested
+        const path = window.location.pathname.split('/').pop() || 'index.html';
+        const isIndex = path === 'index.html' || path === '';
+        const sessionKey = 'crm_initial_load_complete';
+
+        if (!isIndex && !sessionStorage.getItem(sessionKey)) {
+            sessionStorage.setItem(sessionKey, 'true');
+            window.location.href = 'index.html';
+            return;
+        }
+        sessionStorage.setItem(sessionKey, 'true');
+
+        // Update User Profile in Sidebar
+        const userNameEl = document.getElementById('sidemenu-user-name');
+        const userRoleEl = document.getElementById('sidemenu-user-role');
+        if (userNameEl) userNameEl.innerText = currentUser.name;
+        if (userRoleEl) userRoleEl.innerText = currentUser.role === 'admin' ? 'Yönetici' : 'Kullanıcı';
+
+        const pageToView = {
+            'index.html': 'home',
+            'sales-analysis.html': 'dashboard',
+            'companies.html': 'customers',
+            'company-analysis.html': 'revenue',
+            'users.html': 'users-mgmt',
+            'sales-pipeline.html': 'kanban',
+            'announcements.html': 'announcements',
+            'calendar.html': 'visits',
+            'marketing.html': 'marketing',
+            'technical-service.html': 'support',
+            'quotes.html': 'quotes',
+            'stock.html': 'stock',
+            'accounting.html': 'accounting'
+        };
+        const viewId = pageToView[path] || 'home';
+
+        const standalonePages = ['stock', 'accounting'];
+
+        if (standalonePages.includes(viewId)) {
+            // These are full standalone pages - no showView needed
+            if (typeof refreshApp === 'function') refreshApp();
+        } else if (typeof showView === 'function') {
+            showView(viewId);
+        } else if (typeof refreshApp === 'function') {
+            refreshApp();
+        }
+
+        // Delay for Chart.js and heavy DOM updates
+        setTimeout(() => {
+            if (typeof refreshApp === 'function') refreshApp();
+        }, 500);
+    }
+}
+
+window.showDashboard = showDashboard;
+
+// Service Worker Registration for PWA Installation
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker Registered!', reg))
+            .catch(err => console.log('Service Worker Registration Failed!', err));
+    });
+}

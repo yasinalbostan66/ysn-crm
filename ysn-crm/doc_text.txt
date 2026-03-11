@@ -1,0 +1,296 @@
+
+AOBEAD PULİSİ MAKİNE SATIŞ SÖZLEŞMESİ 
+
+
+
+*Makine görseli temsilidir, seçilen konfigürasyona göre değişiklik gösterebilir.
+
+Satıcı: PİMMS GROUP
+Adres: Nato Caddesi, No:45 3/A Seyrantepe 34418 İstanbul Türkiye
+Satıcının temsilcisi: Sayın; Yasin ALBOSTANLI
+Telefon numarası: +90 543 352 72 99 
+E Posta: yasin@pimms.com	
+
+Alıcı: EDM AREL ETİKET SAN. TİC.LİMİDET ŞİRKETİ          
+Adres: Cumhuriyet Mah. serin Sok. No:9 Kartal / İstanbul
+Alıcının Temsilcisi: Sayın; Çağdaş YILDIRIM
+Telefon numarası  : +90 533 574 71 82
+E Posta: cagdas@areletiket.com
+
+
+
+
+
+
+AOBEAD PULİSİ DSMART 330 ELF SERIES DİJİTAL INJEKT BASKI MAKİNESİ
+Model 
+Özellikler
+Adet 
+Birim 
+Fiyat
+ (USD)
+DSMAR 330
+	•	White+CMYK+Orange
+	•	Malzeme Genişliği : 020mm - 330mm
+	•	Maks. Hız 30-60M/dk'ya kadar
+	•	6 Renk X 3 Kafa = 18 Adet Epson S3200 Baskı kafası 
+	•	Çözünürlük : 1200*600 Dpi 
+	•	Malzeme Kalınlığı 0.02 – 500 mikron
+	•	1 Adet Ön Flekso Ünitesi
+	•	Korona Ünitesi
+	•	İnspection 
+1
+Set 
+
+STANDART
+	•	CMYK Pantone %90
+	•	UV Kurutma (LED) Unitesi
+	•	Barkod İki Boyutlu Kod OCR Okuma Modülü
+	•	Değişken Data Teknolojisi
+	•	Toz Giderme Cihazı (Çift taraflı web temizleyici)
+	•	Elektrostatik Alıcı
+	•	Otomatik Dijtal Baskı Mürekkebi Tüketim Tespiti
+	•	P4 Satır Tarama Kamerası
+	•	Ek yeri Sensörü 
+	•	Renkli Optik Görüntüleme Lensi
+	•	Baskı Materyalleri: 
+OPP,PET,PP,PVC,Lamine vb.
+	•	Endüstriyel Kontrol Ana Bilgisayarı 
+	•	3D Çok Boyutlu LED Işık Kaynağı 
+	•	Kesintisiz UPS Kaynağı
+	•	Hareket Kontrol Cihazı
+	•	Baskı Hatası İzleme Modülü
+	•	Yüksek Hızlı Kontrol Sistemi
+	•	Vargel Soğutmalı merdane ve harici Uv soğutmalı çiller sistemi 
+	•	Renk Sapması Hatası İnceleme
+	•	İkinci Geçiş Özelliği
+	•	Çözücü ve sarıcı için tam servo kontrolü UTC-Servo 
+	•	Kontrol Cihazı
+	•	24 inç HD Ekran
+	•	Kesintisiz UPS
+	•	Hız düşürücü
+	•	Anti Statik Bar
+	•	Web Rehberi
+	•	Tansiyon Kontrol
+	•	Hidrolik Sistem
+	•	Kağıt (Web)Kopma Sensörü
+	•	Dahili Çözücü Ve sarıcı 800mm bobbin çapı kapasiteli
+	•	Yazılım: 7 inç MAN-MACHINE Dokunmatik Ekran
+	•	Çevrimiçi 7/24 destek ve uzaktan teşhis  
+
+
+
+SARF MALZEME
+Aobead UV Bazlı Mürekkep (WCMYK)
+KG
+1
+50 USD
+
+Aobead UV Bazlı Mürekkep (Orange)
+KG
+1
+60 USD
+
+Aobead UV Bazlı Mürekkep
+KG
+200
+BEDELSİZ
+
+ARA TOPLAM FİYAT USD
+340.000
+İSKONTO
+320.000
+%20 K.D.V. USD 
+* Teşvikli (ithal) alımlarda KDV Muaf olacaktır.
+64.000
+GENEL TOPLAM (Istanbul Gümrük teslimi) USD
+384.000
+
+
+1. Gelişmiş Baskı Teknolojisi
+	•	Aobead Pulisi makineleri, endüstriyel dijital inkjet teknolojisi kullanır.
+	•	Inkjet teknolojileriyle uyumludur.
+	•	Özellikle Epson Piezoelektrik baskı kafaları sayesinde yüksek hassasiyet sağlar.
+	•	Degrade gibi görsellerde mükkemel sonuç verir.
+
+
+2.⁠ ⁠Değişken Veri Baskısı (VDP)
+	•	QR kod, barkod, seri numarası, kişiselleştirme gibi değişken veri baskıları mümkündür.
+	•	Etiketleme ve güvenlik uygulamaları için idealdir.
+
+3. Otomatik Besleme ve Sarma Sistemleri
+	•	Bobin giriş ve çıkışında tam otomatik sarma/çözme sistemleri bulunur.
+	•	Web Guide
+	•	Tansiyon kontrol ile malzeme yönlendirme stabil kalır.
+	•	Otomatik pozisyonlama (register) sistemi ile fire oranı azalır.	
+
+ 4.⁠ ⁠Endüstriyel Uygunluk
+	•	7/24 üretim için dayanıklı tasarımlar.
+	•	Metal şase ve toz korumalı gövde ile uzun ömürlü kullanım.
+	•	G7 ve Fogra gibi uluslararası sertifikalara sahiptir.
+
+5.⁠ ⁠Kolay Kullanım ve Yazılım Uyumu
+	•	Dokunmatik ekranlı kullanıcı paneli.
+	•	Firmya ait RIP yazılımı
+	•	EPS, PDF, TIFF, BMP, JPEG gibi çoklu dosya formatlarını destekler.		
+
+6.⁠ ⁠Enerji ve Çevre Verimliliği
+	•	LED UV sistemi düşük enerji tüketimi sunar.
+	•	Atık mürekkep azaltıcı teknoloji ile çevre dostu üretim sağlar.
+
+7.⁠ ⁠Bakım ve Teknik Destek
+	•	Otomatik kafa temizleme sistemi
+	•	Uzaktan bağlantı ile teknik destek sağlanabilir.
+	•	Yedek parça erişimi ve teknik servis ağı gelişmiştir.
+
+
+1: MAKİNE DETAYI: AOBEAD PULİSİ İNJEKT DİGİTAL BASKI MAKİNESİ
+2.  MAKİNE ÜRETİCİ BİLGİSİ: 
+2.1 Makinenin menşei: Çin
+2.2 Üretici firma ismi: Aobead Pulisi Digital Equipment Co. Ltd.
+2.3 Makinenin durumu: Sıfır
+2.4 Makine voltajı:	380V – 400V / AC3PH / 50Hz / 60 Hz
+2.5 Güvenlik kriteri: G7, C9 ve fogra sertifikaları,Gıdaya uygun sertifikası
+
+
+3. Ürün Ambalajı:
+Güçlü ahşap paletler üzerinde paketlenen makine , teslimata uygun olarak teslim edilecektir.
+Makinenin ana güç kaynağına bağlanması için yürürlükteki kurallara göre bunun yerel bir elektrikçi tarafından yapılması gerekmektedir.
+4. Yükleme ve Teslimat Şartları :
+4.1 Yükleme süresi: Alıcı kontratın finansal koşullarını yerine getirdikten sonra (ilk peşinat ödendikten sonra ) makina teslimat süre bilgisi fabrika tarafından bildirilecektir.
+4.2 Teslimat: Istanbul Gümrük teslimatlıdır, gümrükten alıcının fabrika adresine kadar nakliyesi alıcıya aittir.
+4.3 Makinenin indirilmesi: Makinenin ve ekipmanlarının kamyondan indirilmesi ve güvenli bir şekilde kurulum alanına yerleştirilmesi, muhafaza edilmesi alıcının sorumluluğundadır. Nakliye, Forklift ,vinç ve benzeri diğer maliyetler, alıcı tarafından karşılanacaktır.
+4.4 Sigorta : Navlun ve makinenin alıcının fabrikasına teslimatına kadar olan nakliye ve kaza sigortası PİMMS tarafından karşılanacaktır.
+5.Finansal ödeme koşulları:
+5.1 Sipariş ile birlikte 158.000 usd peşin, Makine kurulum ile birlikte 162.000 usd 12 aylık eşit taksitler ile (13.500 USD*12 Ay) ödemesi alınacaktır.
+Makine gümrüğe geldiğinde müşteri tarafından KDV'si peşin ödenecektir. Teşvikli alımlarda makine KDV’den muaf olacaktır.
+NOT : Ödeme sonrası sipariş işleme alınacaktır.
+     : Özel proje koşulları ve fiyatımız teklif tarihinden itibaren 30 gün için geçerlidir.
+Alıcı kontratın finansal koşullarını 15 gün içerisinde gerçekleştirmez ise satıcı yeni koşullar belirlemekte veya kontratı iptal etmekte serbesttir.
+6: Makinenin montajı ve alıcının operatörlerinin eğitimi: 
+Satıcı; İki teknisyeni makinenin montajını tamamlamak için görevlendirecektir. 
+Alıcı; makinenin kurulumunda yardımcı olacak iki elemanını hazırda bulundurur. 
+Kullanıcılar (operatörler), kurulumda ve eğitimde satıcının tekniksen ’yenlerinin yanında hazırda bulunur. Tavsiye edilen minimum iki adet operatörün kullanım eğitimini almasıdır.
+Çalışma saatleri, sekiz saat standart gündür. Eğitim, alıcının fabrikasında verilecektir. Teknisyenlerin konaklama bedelleri alıcıya aittir.
+
+7: MAKİNE TESLİM KABULÜ
+Makinenin müşteri tarafından kabulü müşteri tesisinde gerçekleşecektir.
+Makine üretim süresi    : 8 - 10 hafta’dır. 
+Tahmini teslimat süresi  : Yükleme sırasında bildirilecektir.
+8: Garanti süresi
+8.1: Mekanik garanti: Makinenin kurulum tarihinden itibaren bir sene üretici firma garantisi vardır. Garanti süresi içerisinde satıcı bedelsiz olarak sadece garanti kapsamındaki parcaları değiştirir . Makine ve baskı kafaları 1 yıl garanti kapsamı dahilindedir. Darbe ve fiziki hasarlardan gelen arızalar garanti kapsamı dışındadır. Tüketim malzemeleri garanti dışındadır.
+. Alıcı, satıcının arızayı doğru tespit edebilmesi için , arızalı parçaları, arıza durumunu ve sebebini  detaylı olarak resimler, detaylı bir video ile satıcıya en kısa sürede mail olarak  bildirmelidir.
+Yanlış parça (orijinal olmayan mürekkep ve yedek parça) kullanımı sonrasında hatayı rapor etmeme durumunda oluşacak arızalar ve makineyi kullanan operatör hatasından oluşacak arızalar garanti kapsamında tamir edilmez. Ücret karşılığı tamir edilir.  
+8.2: Makine Kurulum Koşulları: İstenilen koşullar sağlanmadığı sürüce (Ortam, ısı, nem, toprak hattı ) makine kurulumu yapılmayacaktır.
+Nozul eksikliği, iz, çizgi, baskıda oluşabilecek v.b. kalite problemleri nedenlerini ortadan kaldırmak için, ortam ısısının 21 -25 derece arası olması ve ortam neminin %35-55 olması sağlanmalıdır. Makinenin kurulumunun yapılacağı ortamın; doğru iklimlendirme şartlarını sağlamış (klima vb.) ve yer zeminin toz tutmayan, statik elektrik üretmeyen epoksi malzeme ile kaplamalı olması gerekmektedir. Alıcı bu koşulları sağlamakla yükümlüdür.
+8.3: Baskı Kafaları: Baskı kafaları tüketim malzemesidir.
+8.4 Makinenin yazılımı: Aobead Pulisi label printer drive system of "Aobead Pulisi Four Color Printing Machine", Aobead pulisi Technology Co., Ltd. Tarafından üretilmiştir tüm hakları gizli tutulmaktadır.
+8.5 Satıcı yazılı arıza bildirisini aldıktan en geç 48 saat içinde cevap verir. 
+8.6 Tek vardiyalı çalışma için garanti süresi 12 ay, çift vardiyalı çalışma için ise 6 aydır (her iki durumda da maksimum 2.000 çalışma saati).
+Garanti süresi boyunca teknik servis ücreti alınmayacaktır. Yol ve iade bedeli fatura edilecektir. 
+8.7 Baskı ve kesim hassasiyeti, hıza ve malzemeye göre değişiklik gösterebilir.
+
+AOBEAD PULİSİ DİGİTAL ETİKET BASKI MAKİNESİ 
+TEKNİK ÖZELLİKLER
+Toplam Uzunluk (Tüm konfigarasyon dahil – Bu ölçüler makinenin konfürigasyona göre değişebilir)
+4500mm*1800mm*1900mm
+
+Boya Türü
+UV Bazlı – Pigment 
+Boya Renkleri
+W+C/M/Y/K+O
+Baskı Kafası
+Epson S3200
+Maksimum Baskı Genişliği 
+330mm
+Maksimum Baskı Hızı
+30-60M/dak.
+Çözünürlük
+1200x600 (dpi)
+Malzeme kalınlık aralığı
+0.2 -0.50 mikron
+Baskı Malzemesi
+Etiket Malzemesi
+Kurutma sistemi 
+Ful UV Led ve 1 adet Mercury Kurutma
+RIP Programı
+Aobead Pulisi 
+Baskı Formatı
+EPS,PDF, JPEG, TIFF, EPS, AI
+
+Not:  Aobead Pulisi Co., Ltd ti üsteki parametrelerde değişiklik yapma veya hangi koşullarda olduğunu açıklama hakkına sahiptir.
+
+
+
+
+
+
+
+
+
+
+
+
+
+8: Banka Bilgileri 
+
+BANKA BİLGİLERİ
+ŞUBE
+SWIFT KODU
+HESAP KODU
+IBAN KODU
+HalkBank TL
+Eyüpsultan
+TRHBTR2AXXX
+10260580
+TR18 0001 2009 7680 0010 2605 80
+HalkBank USD
+Eyüpsultan
+TRHBTR2AXXX 
+
+53000225 
+
+TR94 0001 2009 7680 0053 0002 25 
+
+Garanti  TL
+Levent Sanayi
+TGBATRISXXX
+6201810
+TR69 0006 2000 4160 0006 2018 10
+Garanti  USD
+Levent Sanayi
+TGBATRISXXX
+9006244 
+
+TR06 0006 2000 4160 0009 0062 44 
+
+
+9: İş bu sözleşmesi ile satin alınan ürünlerin teslimi ile doğacak olan borcu yukarıda belirtilen ödeme tablosu ve koşulları çerçevesinde ödemeyi kabul, beyan ve taahhüt ederi
+
+
+Tarih:  12.01.2026
+   
+
+SATICI FİRMA                                 MÜŞTERİ
+PİMMS ULUSLARARASI                        EDM AREL ETİKET SAN. TİC.         ÜRÜNLERİ SAN. TİC. A.Ş.                      LİMİDET ŞİRKETİ
+
+Selçuk AYGÜLER                                    Çağdaş YILDIRIM
+
+
+
+
+
+
+
+
+
+
+
+
+PİMMS ULUSLARARASI REKLAM ÜRÜNLERİ SAN. A.S.
+Nato Cad. No:45 34418 Seyrantepe–İstanbul/Türkiye
+el:0 212 284 1177 / Fax:0 212 284 1176
+muhasebe@pimms.com
+www.pimms.com
+
+

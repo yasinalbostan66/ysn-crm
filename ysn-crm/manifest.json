@@ -1,0 +1,22 @@
+{
+  "name": "LİNKUP CRM",
+  "short_name": "LİNKUP CRM",
+  "description": "Pürüzsüz Deneyim - Yasin Albostanlı 2026",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./img/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
