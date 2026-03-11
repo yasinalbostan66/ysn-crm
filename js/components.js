@@ -31,7 +31,7 @@ function renderSidebar() {
                 <div class="logo" style="flex-direction: column; align-items: flex-start; gap: 0; padding: 0; cursor: pointer;" onclick="window.location.href='index.html'">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-layer-group" style="font-size: 1.5rem; color: var(--primary);"></i>
-                        SOFT CRM
+                        LİNKUP CRM
                     </div>
                     <span style="font-family: 'Caveat', cursive; font-size: 0.9rem; font-weight: 500; color: #38bdf8; display: block; margin-left: 2rem; transform: translateY(-4px); opacity: 0.9;">Yasin Albostanlı 2026</span>
                 </div>
@@ -124,7 +124,7 @@ function renderTopNavBar() {
         'accounting.html': 'Muhasebe'
     };
     const path = window.location.pathname.split('/').pop() || 'index.html';
-    const pageName = pageNames[path] || 'SOFT CRM';
+    const pageName = pageNames[path] || 'LİNKUP CRM';
 
     const navHTML = `
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -148,7 +148,7 @@ function renderTopNavBar() {
         <div style="display: flex; align-items: center; gap: 1rem;">
             <div style="text-align: right; line-height: 1.2;">
                 <div style="font-size: 0.75rem; color: var(--text-light); font-weight: 500;">Pürüzsüz Deneyim</div>
-                <div style="font-family: 'Caveat', cursive; font-size: 1.1rem; color: var(--primary); font-weight: 700;">SOFT CRM 2026</div>
+                <div style="font-family: 'Caveat', cursive; font-size: 1.1rem; color: var(--primary); font-weight: 700;">LİNKUP CRM 2026</div>
             </div>
         </div>
     `;

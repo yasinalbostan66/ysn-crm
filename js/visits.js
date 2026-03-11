@@ -419,7 +419,7 @@ function showDayRoute() {
 async function exportCalendarToPDF() {
     let visits = []; try { visits = JSON.parse(localStorage.getItem('crm_visits') || '[]'); } catch (e) { }
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF(); pdf.setFontSize(14); pdf.text('SOFT CRM — Ziyaret Planı Raporu', 15, 14);
+    const pdf = new jsPDF(); pdf.setFontSize(14); pdf.text('LİNKUP CRM — Ziyaret Planı Raporu', 15, 14);
     let y = 32; pdf.setFontSize(10); pdf.text('Toplam Ziyaret: ' + visits.length, 15, y); y += 10;
     const sorted = [...visits].sort((a, b) => new Date(`${a.date} ${a.time}`) - new Date(`${b.date} ${b.time}`));
     sorted.forEach(v => {

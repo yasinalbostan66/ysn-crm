@@ -231,7 +231,7 @@ function exportServiceToPDF(id) {
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const margin = 20; let y = 20;
     pdf.setFillColor(24, 30, 45); pdf.rect(0, 0, 210, 45, 'F');
-    pdf.setTextColor(255, 255, 255); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(22); pdf.text('SOFT CRM', margin, 25);
+    pdf.setTextColor(255, 255, 255); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(22); pdf.text('LİNKUP CRM', margin, 25);
     pdf.setFont('helvetica', 'normal'); pdf.setFontSize(10); pdf.text('TEKNİK SERVİS VE BAKIM FORMU', margin, 32);
     pdf.setFont('helvetica', 'bold'); pdf.setFillColor(255, 59, 48); pdf.rect(140, 15, 55, 12, 'F'); pdf.setTextColor(255, 255, 255); pdf.setFontSize(9); pdf.text('FORM NO: ' + s.formNo, 145, 23);
     pdf.setTextColor(200, 200, 200); pdf.setFontSize(8); pdf.text('DÜZENLEME TARİHİ: ' + new Date().toLocaleDateString('tr-TR'), 140, 32);
@@ -257,6 +257,6 @@ function exportServiceToPDF(id) {
     pdf.text(lines, margin + 2, y); y += (lines.length * 5) + 20;
     pdf.setDrawColor(200, 200, 200); pdf.line(margin, y, margin + 60, y); pdf.line(margin + 110, y, margin + 170, y);
     pdf.setFontSize(8); pdf.setTextColor(100, 100, 100); pdf.text('Müşteri İmza / Kaşe', margin + 10, y + 5); pdf.text('Teknik Servis Onay', margin + 125, y + 5);
-    pdf.setTextColor(180, 180, 180); pdf.setFontSize(7); pdf.text('Bu belge SOFT CRM tarafından otomatik oluşturulmuştur. | ' + new Date().toLocaleString(), margin, 215);
+    pdf.setTextColor(180, 180, 180); pdf.setFontSize(7); pdf.text('Bu belge LİNKUP CRM tarafından otomatik oluşturulmuştur. | ' + new Date().toLocaleString(), margin, 215);
     pdf.save(`Servis_Formu_${s.formNo}.pdf`);
 }

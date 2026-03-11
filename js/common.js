@@ -277,6 +277,19 @@ function handleLogin(event) {
     localStorage.setItem('crm_online_users', JSON.stringify(onlineUsers));
 
     currentUser = user;
+
+    // Start services for this session
+    if (typeof updateTime === 'function') {
+        updateTime();
+        if (!window.__timeSet) { setInterval(updateTime, 1000); window.__timeSet = true; }
+    }
+    if (typeof fetchExchangeRates === 'function') fetchExchangeRates();
+    if (typeof fetchWeather === 'function') fetchWeather();
+    if (typeof updateStats === 'function') {
+        updateStats();
+        if (!window.__statSet) { setInterval(updateStats, 1000 * 60 * 5); window.__statSet = true; }
+    }
+
     if (typeof showDashboard === 'function') showDashboard();
 }
 

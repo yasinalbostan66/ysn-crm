@@ -668,7 +668,7 @@ async function exportViewToPDF(viewId) {
         const dateStr = new Date().toLocaleString('tr-TR');
         let html = `
             <div style="display:flex;justify-content:space-between;border-bottom:3px solid #2563eb;padding-bottom:20px;margin-bottom:28px;">
-                <div><div style="font-size:26px;font-weight:800;color:#2563eb;">SOFT CRM</div></div>
+                <div><div style="font-size:26px;font-weight:800;color:#2563eb;">LİNKUP CRM</div></div>
                 <div style="text-align:right;"><div style="font-size:20px;font-weight:700;">${titleText}</div><div>${dateStr}</div></div>
             </div>`;
 
