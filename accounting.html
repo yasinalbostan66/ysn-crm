@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muhasebe - SOFT CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Muhasebe - LİNKUP CRM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -102,13 +102,15 @@
                     <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Aylık Gelir / Gider Trendi
                     </h3>
-                    <div style="height: 240px; position: relative;"><canvas id="accTrendChart"></canvas></div>
+                    <div style="height: 240px; position: relative;; width: 100%;">
+<canvas id="accTrendChart"></canvas></div>
                 </div>
                 <div class="content-card" style="padding: 1.5rem;">
                     <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> Gider Kategorileri
                     </h3>
-                    <div style="height: 240px; position: relative;"><canvas id="expenseCatChart"></canvas></div>
+                    <div style="height: 240px; position: relative;; width: 100%;">
+<canvas id="expenseCatChart"></canvas></div>
                 </div>
             </div>
 
@@ -198,7 +200,8 @@
                     <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-water" style="color: var(--primary);"></i> Nakit Akışı Özeti (Son 6 Ay)
                     </h3>
-                    <div style="height: 320px; position: relative; margin-bottom: 2rem;"><canvas id="cashFlowChart"></canvas></div>
+                    <div style="height: 320px; position: relative; margin-bottom: 2rem;; width: 100%;">
+<canvas id="cashFlowChart"></canvas></div>
                     <div id="cashflow-table"></div>
                 </div>
             </div>
