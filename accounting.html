@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhasebe - SOFT CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .acc-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 2rem; }
+        .acc-tab { padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 700; color: var(--text-light); font-size: 0.88rem; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+        .acc-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(37,99,235,0.03); }
+        .acc-tab:hover:not(.active) { color: var(--text); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .income-badge { background: rgba(16,185,129,0.12); color: #10b981; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+        .expense-badge { background: rgba(239,68,68,0.12); color: #ef4444; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+        .profit-badge { background: rgba(139,92,246,0.12); color: #8b5cf6; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-overlay.active { display: flex; }
+        .form-modal { background: var(--card-bg); border-radius: 1.2rem; padding: 2rem; width: min(500px, 95vw); max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+
+        .summary-kpi { background: var(--card-bg); border-radius: 1rem; padding: 1.25rem 1.5rem; border: 1px solid var(--border); }
+        .trans-row:hover { background: var(--bg) !important; }
+
+        .invoice-badge-paid { background: rgba(16,185,129,0.12); color: #10b981; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+        .invoice-badge-pending { background: rgba(245,158,11,0.12); color: #f59e0b; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+        .invoice-badge-overdue { background: rgba(239,68,68,0.12); color: #ef4444; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <link rel="apple-touch-icon" href="img/logo.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+</head>
+
+<body>
+    <div class="dashboard" id="main-dashboard" style="display:none;">
+        <div id="sidebar-target"></div>
+        <main class="main-content">
+            <div id="top-nav-bar"></div>
+
+            <div class="header" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h1 style="font-size: 1.9rem; margin-bottom: 0.3rem;">Muhasebe</h1>
+                    <p style="color: var(--text-light); font-weight: 500;">Gelir, gider ve fatura takibinizi yönetin.</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button onclick="exportAccExcel()" class="btn btn-secondary" style="display:flex;align-items:center;gap:0.4rem;">
+                        <i class="fa-solid fa-file-excel"></i> Excel'e Aktar
+                    </button>
+                    <button onclick="openTransModal()" class="btn btn-primary" style="display:flex;align-items:center;gap:0.5rem;">
+                        <i class="fa-solid fa-plus"></i> Yeni İşlem Ekle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary KPIs -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1.2rem; margin-bottom: 2rem;">
+                <div class="summary-kpi animate-fade-in" style="border-top: 4px solid #10b981;">
+                    <p style="font-size: 0.72rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Bu Ay Gelir</p>
+                    <h2 id="kpi-income" style="font-size: 2rem; font-weight: 800; color: #10b981; margin-top: 0.4rem;">$0</h2>
+                    <p id="kpi-income-count" style="font-size: 0.72rem; color: var(--text-light); margin-top: 0.3rem;">0 işlem</p>
+                </div>
+                <div class="summary-kpi animate-fade-in" style="border-top: 4px solid #ef4444;">
+                    <p style="font-size: 0.72rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Bu Ay Gider</p>
+                    <h2 id="kpi-expense" style="font-size: 2rem; font-weight: 800; color: #ef4444; margin-top: 0.4rem;">$0</h2>
+                    <p id="kpi-expense-count" style="font-size: 0.72rem; color: var(--text-light); margin-top: 0.3rem;">0 işlem</p>
+                </div>
+                <div class="summary-kpi animate-fade-in" style="border-top: 4px solid #8b5cf6;">
+                    <p style="font-size: 0.72rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Bu Ay Net Kar</p>
+                    <h2 id="kpi-profit" style="font-size: 2rem; font-weight: 800; color: #8b5cf6; margin-top: 0.4rem;">$0</h2>
+                    <p style="font-size: 0.72rem; color: var(--text-light); margin-top: 0.3rem;">Gelir - Gider</p>
+                </div>
+                <div class="summary-kpi animate-fade-in" style="border-top: 4px solid #f59e0b;">
+                    <p style="font-size: 0.72rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Bekleyen Fatura</p>
+                    <h2 id="kpi-pending" style="font-size: 2rem; font-weight: 800; color: #f59e0b; margin-top: 0.4rem;">0</h2>
+                    <p style="font-size: 0.72rem; color: var(--text-light); margin-top: 0.3rem;">Ödeme bekleniyor</p>
+                </div>
+                <div class="summary-kpi animate-fade-in" style="border-top: 4px solid var(--primary);">
+                    <p style="font-size: 0.72rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Toplam Gelir (Tüm Zamanlar)</p>
+                    <h2 id="kpi-total-income" style="font-size: 2rem; font-weight: 800; color: var(--primary); margin-top: 0.4rem;">$0</h2>
+                    <p style="font-size: 0.72rem; color: var(--text-light); margin-top: 0.3rem;">Tüm gelir kayıtları</p>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="content-card" style="padding: 1.5rem;">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Aylık Gelir / Gider Trendi
+                    </h3>
+                    <div style="height: 240px; position: relative;"><canvas id="accTrendChart"></canvas></div>
+                </div>
+                <div class="content-card" style="padding: 1.5rem;">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> Gider Kategorileri
+                    </h3>
+                    <div style="height: 240px; position: relative;"><canvas id="expenseCatChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="acc-tabs">
+                <div class="acc-tab active" id="tab-transactions" onclick="switchAccTab('transactions')">
+                    <i class="fa-solid fa-list"></i> Gelir / Gider Defteri
+                </div>
+                <div class="acc-tab" id="tab-invoices" onclick="switchAccTab('invoices')">
+                    <i class="fa-solid fa-file-invoice"></i> Fatura Takibi
+                </div>
+                <div class="acc-tab" id="tab-cashflow" onclick="switchAccTab('cashflow')">
+                    <i class="fa-solid fa-water"></i> Nakit Akışı
+                </div>
+            </div>
+
+            <!-- Tab: Transactions -->
+            <div class="tab-content active" id="content-transactions">
+                <div class="content-card animate-fade-in" style="overflow: hidden;">
+                    <div style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: space-between;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="filterTrans('')" id="trans-filter-all" class="btn btn-primary" style="font-size:0.78rem; padding: 0.4rem 1rem;">Tümü</button>
+                            <button onclick="filterTrans('gelir')" id="trans-filter-gelir" class="btn btn-secondary" style="font-size:0.78rem; padding: 0.4rem 1rem; color:#10b981;">Gelir</button>
+                            <button onclick="filterTrans('gider')" id="trans-filter-gider" class="btn btn-secondary" style="font-size:0.78rem; padding: 0.4rem 1rem; color:#ef4444;">Gider</button>
+                        </div>
+                        <select id="trans-month-filter" onchange="renderTransactions()" class="form-control" style="max-width:180px; font-size:0.8rem; padding: 0.4rem 0.75rem;">
+                            <option value="">Tüm Aylar</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: rgba(0,0,0,0.03); border-bottom: 2px solid var(--border);">
+                                <tr>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Tarih</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Açıklama</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Kategori</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Firma / Kaynak</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Tür</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: right; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Tutar (USD)</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trans-table-body">
+                                <tr><td colspan="7" style="text-align:center; padding: 3rem; color: var(--text-light);">Henüz kayıt bulunmamaktadır.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="trans-footer" style="padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 2rem; background: rgba(0,0,0,0.01);">
+                        <span style="font-size: 0.82rem; color: var(--text-light);">Gösterilen toplam: <strong id="trans-footer-total" style="color: var(--text);">$0</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Invoices -->
+            <div class="tab-content" id="content-invoices">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                    <button onclick="openInvoiceModal()" class="btn btn-primary" style="display:flex;align-items:center;gap:0.5rem;">
+                        <i class="fa-solid fa-plus"></i> Yeni Fatura Ekle
+                    </button>
+                </div>
+                <div class="content-card animate-fade-in" style="overflow: hidden;">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: rgba(0,0,0,0.03); border-bottom: 2px solid var(--border);">
+                                <tr>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Fatura No</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Müşteri / Tedarikçi</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Tür</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Düzenleme Tarihi</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: left; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Vade Tarihi</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: right; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Tutar (USD)</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">Durum</th>
+                                    <th style="padding: 0.85rem 1.2rem; text-align: center; font-size: 0.75rem; color: var(--text-light); font-weight: 800; text-transform: uppercase;">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoice-table-body">
+                                <tr><td colspan="8" style="text-align:center; padding: 3rem; color: var(--text-light);">Henüz fatura bulunmamaktadır.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Cash Flow -->
+            <div class="tab-content" id="content-cashflow">
+                <div class="content-card animate-fade-in" style="padding: 1.5rem; overflow: hidden;">
+                    <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-water" style="color: var(--primary);"></i> Nakit Akışı Özeti (Son 6 Ay)
+                    </h3>
+                    <div style="height: 320px; position: relative; margin-bottom: 2rem;"><canvas id="cashFlowChart"></canvas></div>
+                    <div id="cashflow-table"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Add Transaction Modal -->
+    <div class="modal-overlay" id="trans-modal">
+        <div class="form-modal">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 id="trans-modal-title" style="font-size: 1.2rem; font-weight: 800;">Yeni Muhasebe İşlemi</h2>
+                <i class="fa-solid fa-times" onclick="closeTransModal()" style="cursor: pointer; font-size: 1.3rem; color: var(--text-light);"></i>
+            </div>
+            <form id="trans-form" onsubmit="handleTransSubmit(event)">
+                <input type="hidden" id="edit-trans-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">İşlem Türü *</label>
+                        <select id="trans-type" class="form-control" onchange="updateTransCategories()">
+                            <option value="gelir">📈 Gelir</option>
+                            <option value="gider">📉 Gider</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Tarih *</label>
+                        <input type="date" id="trans-date" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Açıklama *</label>
+                        <input type="text" id="trans-desc" class="form-control" required placeholder="İşlem açıklaması...">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Kategori</label>
+                        <select id="trans-cat" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Firma / Kaynak</label>
+                        <input type="text" id="trans-company" class="form-control" placeholder="Firma adı...">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Tutar (USD) *</label>
+                        <input type="number" id="trans-amount" class="form-control" required min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Ödeme Yöntemi</label>
+                        <select id="trans-payment" class="form-control">
+                            <option value="Banka Havalesi">Banka Havalesi</option>
+                            <option value="Nakit">Nakit</option>
+                            <option value="Kredi Kartı">Kredi Kartı</option>
+                            <option value="Çek">Çek</option>
+                            <option value="SWIFT">SWIFT</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Notlar</label>
+                        <textarea id="trans-notes" class="form-control" rows="2" placeholder="Ek bilgiler..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" onclick="closeTransModal()" class="btn btn-secondary">İptal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div class="modal-overlay" id="invoice-modal">
+        <div class="form-modal">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.2rem; font-weight: 800;">Yeni Fatura</h2>
+                <i class="fa-solid fa-times" onclick="closeInvoiceModal()" style="cursor: pointer; font-size: 1.3rem; color: var(--text-light);"></i>
+            </div>
+            <form id="invoice-form" onsubmit="handleInvoiceSubmit(event)">
+                <input type="hidden" id="edit-invoice-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Fatura No</label>
+                        <input type="text" id="inv-no" class="form-control" placeholder="FAT-2026-001">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Fatura Türü</label>
+                        <select id="inv-type" class="form-control">
+                            <option value="satis">📤 Satış Faturası</option>
+                            <option value="alis">📥 Alış Faturası</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Müşteri / Tedarikçi *</label>
+                        <input type="text" id="inv-party" class="form-control" required placeholder="Firma adı...">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Düzenleme Tarihi *</label>
+                        <input type="date" id="inv-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Vade Tarihi</label>
+                        <input type="date" id="inv-due" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Tutar (USD) *</label>
+                        <input type="number" id="inv-amount" class="form-control" required min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Durum</label>
+                        <select id="inv-status" class="form-control">
+                            <option value="Beklemede">⏳ Beklemede</option>
+                            <option value="Ödendi">✅ Ödendi</option>
+                            <option value="Gecikmiş">🔴 Gecikmiş</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);">Açıklama</label>
+                        <input type="text" id="inv-desc" class="form-control" placeholder="Fatura içeriği...">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" onclick="closeInvoiceModal()" class="btn btn-secondary">İptal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/visits.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/marketing.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/announcements.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let transactions = [];
+        let invoices = [];
+        let transFilter = '';
+        let editingTransId = null;
+        let editingInvoiceId = null;
+
+        const INCOME_CATS = ['Makine Satışı','Servis Geliri','Yedek Parça Satışı','Danışmanlık','Kira Geliri','Diğer Gelir'];
+        const EXPENSE_CATS = ['Tedarik / Alım','Personel Gideri','Kira','Lojistik / Nakliye','Bakım - Tamir','Pazarlama','Vergi','Genel Gider'];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAccData();
+            renderTopNavBar();
+            document.getElementById('trans-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('inv-date').value = new Date().toISOString().split('T')[0];
+            updateTransCategories();
+            populateMonthFilter();
+        });
+
+        function loadAccData() {
+            try { transactions = JSON.parse(localStorage.getItem('crm_transactions') || '[]'); } catch(e) { transactions = []; }
+            try { invoices = JSON.parse(localStorage.getItem('crm_invoices') || '[]'); } catch(e) { invoices = []; }
+
+            // Demo data
+            if (transactions.length === 0) {
+                const now = new Date();
+                const months = ['2026-01','2026-02','2026-03'];
+                months.forEach((m, idx) => {
+                    transactions.push({ id: Date.now() + idx*10+1, type:'gelir', date: m+'-05', desc:'Aobead Makinesi Satışı', cat:'Makine Satışı', company:'ABC Etiket Ltd.', amount: 340000, payment:'SWIFT', notes:'' });
+                    transactions.push({ id: Date.now() + idx*10+2, type:'gider', date: m+'-10', desc:'Yedek Parça Alımı', cat:'Tedarik / Alım', company:'Aobead Pulisi', amount: 8500, payment:'Banka Havalesi', notes:'' });
+                    transactions.push({ id: Date.now() + idx*10+3, type:'gider', date: m+'-15', desc:'Personel Maaşları', cat:'Personel Gideri', company:'Bordro', amount: 25000, payment:'Banka Havalesi', notes:'' });
+                    if (idx === 2) {
+                        transactions.push({ id: Date.now() + idx*10+4, type:'gelir', date: m+'-20', desc:'Teknik Servis Geliri', cat:'Servis Geliri', company:'XYZ Matbaa', amount: 4500, payment:'Nakit', notes:'' });
+                        transactions.push({ id: Date.now() + idx*10+5, type:'gider', date: m+'-22', desc:'Ofis Kirası', cat:'Kira', company:'Ofis A.Ş.', amount: 12000, payment:'Banka Havalesi', notes:'' });
+                    }
+                });
+                transactions.sort((a,b)=>new Date(b.date)-new Date(a.date));
+                saveAccData();
+            }
+            if (invoices.length === 0) {
+                invoices = [
+                    { id:1, no:'FAT-2026-001', type:'satis', party:'ABC Etiket Ltd.', date:'2026-03-01', due:'2026-04-01', amount:340000, status:'Beklemede', desc:'Aobead DSMART 330 Satışı' },
+                    { id:2, no:'FAT-2026-002', type:'alis', party:'Aobead Pulisi TR', date:'2026-02-20', due:'2026-03-20', amount:8500, status:'Ödendi', desc:'Yedek parça alımı' },
+                    { id:3, no:'FAT-2026-003', type:'satis', party:'XYZ Matbaa', date:'2026-01-15', due:'2026-02-15', amount:4500, status:'Gecikmiş', desc:'Teknik servis + parça' },
+                ];
+                saveAccData();
+            }
+
+            renderKPIs();
+            renderTransactions();
+            renderInvoices();
+            renderAccCharts();
+            renderCashFlow();
+        }
+
+        function saveAccData() {
+            localStorage.setItem('crm_transactions', JSON.stringify(transactions));
+            localStorage.setItem('crm_invoices', JSON.stringify(invoices));
+        }
+
+        function renderKPIs() {
+            const now = new Date();
+            const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+            const monthTrans = transactions.filter(t => t.date.startsWith(thisMonth));
+            const income = monthTrans.filter(t=>t.type==='gelir').reduce((s,t)=>s+t.amount,0);
+            const expense = monthTrans.filter(t=>t.type==='gider').reduce((s,t)=>s+t.amount,0);
+            const totalIncome = transactions.filter(t=>t.type==='gelir').reduce((s,t)=>s+t.amount,0);
+            document.getElementById('kpi-income').textContent = '$'+income.toLocaleString('tr-TR');
+            document.getElementById('kpi-income-count').textContent = monthTrans.filter(t=>t.type==='gelir').length + ' işlem';
+            document.getElementById('kpi-expense').textContent = '$'+expense.toLocaleString('tr-TR');
+            document.getElementById('kpi-expense-count').textContent = monthTrans.filter(t=>t.type==='gider').length + ' işlem';
+            const profit = income - expense;
+            const profitEl = document.getElementById('kpi-profit');
+            profitEl.textContent = (profit >= 0 ? '+' : '') + '$'+profit.toLocaleString('tr-TR');
+            profitEl.style.color = profit >= 0 ? '#8b5cf6' : '#ef4444';
+            document.getElementById('kpi-pending').textContent = invoices.filter(i=>i.status==='Beklemede').length;
+            document.getElementById('kpi-total-income').textContent = '$'+totalIncome.toLocaleString('tr-TR');
+        }
+
+        function filterTrans(type) {
+            transFilter = type;
+            document.querySelectorAll('#content-transactions .btn').forEach(b => b.className = 'btn btn-secondary');
+            const activeId = type === '' ? 'trans-filter-all' : 'trans-filter-' + type;
+            const activeEl = document.getElementById(activeId);
+            if (activeEl) activeEl.className = 'btn btn-primary';
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const month = document.getElementById('trans-month-filter')?.value || '';
+            let list = [...transactions];
+            if (transFilter) list = list.filter(t => t.type === transFilter);
+            if (month) list = list.filter(t => t.date.startsWith(month));
+
+            const tbody = document.getElementById('trans-table-body');
+            if (!list.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-light);">Kayıt bulunamadı.</td></tr>';
+                document.getElementById('trans-footer-total').textContent = '$0';
+                return;
+            }
+
+            const shownTotal = list.reduce((s,t) => t.type==='gelir' ? s+t.amount : s-t.amount, 0);
+            document.getElementById('trans-footer-total').textContent = (shownTotal>=0?'+':'') + '$' + shownTotal.toLocaleString('tr-TR');
+            document.getElementById('trans-footer-total').style.color = shownTotal >= 0 ? '#10b981' : '#ef4444';
+
+            tbody.innerHTML = list.map(t => {
+                const isIncome = t.type === 'gelir';
+                const dStr = new Date(t.date).toLocaleDateString('tr-TR');
+                return `
+                <tr class="trans-row" style="border-bottom: 1px solid var(--border);">
+                    <td style="padding:0.9rem 1.2rem; font-size:0.82rem; color:var(--text-light);">${dStr}</td>
+                    <td style="padding:0.9rem 1.2rem; font-weight:600;">${t.desc}</td>
+                    <td style="padding:0.9rem 1.2rem; font-size:0.82rem; color:var(--text-light);">${t.cat||'-'}</td>
+                    <td style="padding:0.9rem 1.2rem; font-size:0.82rem;">${t.company||'-'}</td>
+                    <td style="padding:0.9rem 1.2rem;"><span class="${isIncome ? 'income-badge' : 'expense-badge'}">${isIncome ? '📈 Gelir' : '📉 Gider'}</span></td>
+                    <td style="padding:0.9rem 1.2rem; text-align:right; font-weight:800; font-size:0.95rem; color:${isIncome?'#10b981':'#ef4444'};">${isIncome?'+':'-'}$${t.amount.toLocaleString('tr-TR')}</td>
+                    <td style="padding:0.9rem 1.2rem; text-align:center;">
+                        <div style="display:flex; gap:0.4rem; justify-content:center;">
+                            <button onclick="openTransModal(${t.id})" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.72rem;"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteTransaction(${t.id})" class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.72rem;"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderInvoices() {
+            const tbody = document.getElementById('invoice-table-body');
+            if (!invoices.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--text-light);">Fatura bulunmamaktadır.</td></tr>'; return; }
+            tbody.innerHTML = invoices.map(inv => {
+                const stCls = inv.status==='Ödendi' ? 'invoice-badge-paid' : inv.status==='Gecikmiş' ? 'invoice-badge-overdue' : 'invoice-badge-pending';
+                const typeTxt = inv.type === 'satis' ? '📤 Satış' : '📥 Alış';
+                return `
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding:0.9rem 1.2rem; font-weight:700; color:var(--primary); font-size:0.82rem;">${inv.no}</td>
+                    <td style="padding:0.9rem 1.2rem; font-weight:600;">${inv.party}</td>
+                    <td style="padding:0.9rem 1.2rem; font-size:0.82rem;">${typeTxt}</td>
+                    <td style="padding:0.9rem 1.2rem; font-size:0.82rem; color:var(--text-light);">${new Date(inv.date).toLocaleDateString('tr-TR')}</td>
+                    <td style="padding:0.9rem 1.2rem; font-size:0.82rem; color:var(--text-light);">${inv.due ? new Date(inv.due).toLocaleDateString('tr-TR') : '-'}</td>
+                    <td style="padding:0.9rem 1.2rem; text-align:right; font-weight:800;">$${inv.amount.toLocaleString('tr-TR')}</td>
+                    <td style="padding:0.9rem 1.2rem; text-align:center;"><span class="${stCls}">${inv.status}</span></td>
+                    <td style="padding:0.9rem 1.2rem; text-align:center;">
+                        <div style="display:flex;gap:0.4rem;justify-content:center;">
+                            <button onclick="markInvoicePaid(${inv.id})" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.72rem;" title="Ödendi İşaretle"><i class="fa-solid fa-check"></i></button>
+                            <button onclick="deleteInvoice(${inv.id})" class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.72rem;"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderAccCharts() {
+            // Monthly trend (last 6 months)
+            const months = [];
+            const incomeData = [];
+            const expenseData = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(); d.setMonth(d.getMonth() - i);
+                const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                const lbl = d.toLocaleDateString('tr-TR', {month:'short', year:'2-digit'});
+                months.push(lbl);
+                incomeData.push(transactions.filter(t=>t.type==='gelir'&&t.date.startsWith(key)).reduce((s,t)=>s+t.amount,0));
+                expenseData.push(transactions.filter(t=>t.type==='gider'&&t.date.startsWith(key)).reduce((s,t)=>s+t.amount,0));
+            }
+            const tCtx = document.getElementById('accTrendChart')?.getContext('2d');
+            if (tCtx && typeof Chart !== 'undefined') {
+                if (window._trendChart) window._trendChart.destroy();
+                window._trendChart = new Chart(tCtx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            { label: 'Gelir', data: incomeData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, borderWidth: 2.5 },
+                            { label: 'Gider', data: expenseData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true, tension: 0.4, borderWidth: 2.5 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { weight: 'bold' } } } }, scales: { y: { beginAtZero: true, ticks: { callback: v => '$'+v.toLocaleString() } }, x: { grid: { display: false } } } }
+                });
+            }
+
+            // Expense categories doughnut
+            const expCats = {};
+            transactions.filter(t=>t.type==='gider').forEach(t => { expCats[t.cat||'Diğer'] = (expCats[t.cat||'Diğer']||0)+t.amount; });
+            const eCtx = document.getElementById('expenseCatChart')?.getContext('2d');
+            if (eCtx && typeof Chart !== 'undefined') {
+                if (window._expChart) window._expChart.destroy();
+                if (Object.keys(expCats).length) {
+                    window._expChart = new Chart(eCtx, {
+                        type: 'doughnut',
+                        data: { labels: Object.keys(expCats), datasets: [{ data: Object.values(expCats), backgroundColor: ['#ef4444','#f59e0b','#8b5cf6','#2563eb','#10b981','#64748b','#ec4899','#14b8a6'], borderWidth: 0 }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, weight: 'bold' }, padding: 12 } } } }
+                    });
+                }
+            }
+        }
+
+        function renderCashFlow() {
+            const months = [];
+            const rows = [];
+            let runningBalance = 0;
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(); d.setMonth(d.getMonth() - i);
+                const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                const lbl = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+                const inc = transactions.filter(t=>t.type==='gelir'&&t.date.startsWith(key)).reduce((s,t)=>s+t.amount,0);
+                const exp = transactions.filter(t=>t.type==='gider'&&t.date.startsWith(key)).reduce((s,t)=>s+t.amount,0);
+                runningBalance += (inc - exp);
+                months.push(lbl);
+                rows.push({ lbl, inc, exp, net: inc-exp, balance: runningBalance });
+            }
+            const cfCtx = document.getElementById('cashFlowChart')?.getContext('2d');
+            if (cfCtx && typeof Chart !== 'undefined') {
+                if (window._cfChart) window._cfChart.destroy();
+                window._cfChart = new Chart(cfCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            { label: 'Gelir', data: rows.map(r=>r.inc), backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6 },
+                            { label: 'Gider', data: rows.map(r=>r.exp), backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 6 },
+                            { label: 'Net', data: rows.map(r=>r.net), type: 'line', borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true, tension: 0.4, borderWidth: 2 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } }, scales: { y: { beginAtZero: true, ticks: { callback: v => '$'+v.toLocaleString() } }, x: { grid: { display: false } } } }
+                });
+            }
+
+            document.getElementById('cashflow-table').innerHTML = `
+                <table style="width:100%;border-collapse:collapse;margin-top:1.5rem;">
+                    <thead style="background:rgba(0,0,0,0.03);border-bottom:2px solid var(--border);">
+                        <tr>
+                            <th style="padding:0.85rem 1.2rem;text-align:left;font-size:0.75rem;color:var(--text-light);font-weight:800;text-transform:uppercase;">Dönem</th>
+                            <th style="padding:0.85rem 1.2rem;text-align:right;font-size:0.75rem;color:var(--text-light);font-weight:800;text-transform:uppercase;">Gelir</th>
+                            <th style="padding:0.85rem 1.2rem;text-align:right;font-size:0.75rem;color:var(--text-light);font-weight:800;text-transform:uppercase;">Gider</th>
+                            <th style="padding:0.85rem 1.2rem;text-align:right;font-size:0.75rem;color:var(--text-light);font-weight:800;text-transform:uppercase;">Net</th>
+                            <th style="padding:0.85rem 1.2rem;text-align:right;font-size:0.75rem;color:var(--text-light);font-weight:800;text-transform:uppercase;">Kümülatif Bakiye</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(r=>`<tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.85rem 1.2rem;font-weight:600;">${r.lbl}</td>
+                            <td style="padding:0.85rem 1.2rem;text-align:right;color:#10b981;font-weight:700;">+$${r.inc.toLocaleString('tr-TR')}</td>
+                            <td style="padding:0.85rem 1.2rem;text-align:right;color:#ef4444;font-weight:700;">-$${r.exp.toLocaleString('tr-TR')}</td>
+                            <td style="padding:0.85rem 1.2rem;text-align:right;font-weight:800;color:${r.net>=0?'#8b5cf6':'#ef4444'};">${r.net>=0?'+':''} $${r.net.toLocaleString('tr-TR')}</td>
+                            <td style="padding:0.85rem 1.2rem;text-align:right;font-weight:800;color:${r.balance>=0?'var(--primary)':'#ef4444'};">$${r.balance.toLocaleString('tr-TR')}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        function populateMonthFilter() {
+            const sel = document.getElementById('trans-month-filter');
+            const months = new Set(transactions.map(t => t.date.substring(0,7)));
+            [...months].sort((a,b)=>b.localeCompare(a)).forEach(m => {
+                const d = new Date(m+'-01');
+                const lbl = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+                sel.innerHTML += `<option value="${m}">${lbl}</option>`;
+            });
+        }
+
+        function switchAccTab(tab) {
+            document.querySelectorAll('.acc-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('content-' + tab).classList.add('active');
+        }
+
+        function updateTransCategories() {
+            const type = document.getElementById('trans-type').value;
+            const cats = type === 'gelir' ? INCOME_CATS : EXPENSE_CATS;
+            document.getElementById('trans-cat').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function openTransModal(id = null) {
+            editingTransId = id;
+            document.getElementById('trans-modal-title').textContent = id ? 'İşlem Düzenle' : 'Yeni Muhasebe İşlemi';
+            document.getElementById('trans-form').reset();
+            document.getElementById('trans-date').value = new Date().toISOString().split('T')[0];
+            updateTransCategories();
+            if (id) {
+                const t = transactions.find(x => x.id === id);
+                if (!t) return;
+                document.getElementById('edit-trans-id').value = id;
+                document.getElementById('trans-type').value = t.type;
+                document.getElementById('trans-date').value = t.date;
+                document.getElementById('trans-desc').value = t.desc;
+                updateTransCategories();
+                document.getElementById('trans-cat').value = t.cat;
+                document.getElementById('trans-company').value = t.company||'';
+                document.getElementById('trans-amount').value = t.amount;
+                document.getElementById('trans-payment').value = t.payment||'Banka Havalesi';
+                document.getElementById('trans-notes').value = t.notes||'';
+            }
+            document.getElementById('trans-modal').classList.add('active');
+        }
+
+        function closeTransModal() { document.getElementById('trans-modal').classList.remove('active'); }
+
+        function handleTransSubmit(e) {
+            e.preventDefault();
+            const data = {
+                id: editingTransId || Date.now(),
+                type: document.getElementById('trans-type').value,
+                date: document.getElementById('trans-date').value,
+                desc: document.getElementById('trans-desc').value,
+                cat: document.getElementById('trans-cat').value,
+                company: document.getElementById('trans-company').value,
+                amount: parseFloat(document.getElementById('trans-amount').value) || 0,
+                payment: document.getElementById('trans-payment').value,
+                notes: document.getElementById('trans-notes').value,
+            };
+            if (editingTransId) { transactions = transactions.map(t => t.id === editingTransId ? data : t); }
+            else { transactions.unshift(data); }
+            saveAccData();
+            closeTransModal();
+            renderKPIs();
+            renderTransactions();
+            renderAccCharts();
+            renderCashFlow();
+        }
+
+        function deleteTransaction(id) {
+            if (!confirm('Bu kayıt silinecek. Emin misiniz?')) return;
+            transactions = transactions.filter(t => t.id !== id);
+            saveAccData();
+            renderKPIs();
+            renderTransactions();
+            renderAccCharts();
+        }
+
+        function openInvoiceModal() {
+            document.getElementById('invoice-form').reset();
+            document.getElementById('inv-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('invoice-modal').classList.add('active');
+        }
+        function closeInvoiceModal() { document.getElementById('invoice-modal').classList.remove('active'); }
+
+        function handleInvoiceSubmit(e) {
+            e.preventDefault();
+            const data = {
+                id: editingInvoiceId || Date.now(),
+                no: document.getElementById('inv-no').value || 'FAT-' + Date.now(),
+                type: document.getElementById('inv-type').value,
+                party: document.getElementById('inv-party').value,
+                date: document.getElementById('inv-date').value,
+                due: document.getElementById('inv-due').value,
+                amount: parseFloat(document.getElementById('inv-amount').value) || 0,
+                status: document.getElementById('inv-status').value,
+                desc: document.getElementById('inv-desc').value,
+            };
+            if (editingInvoiceId) { invoices = invoices.map(i => i.id === editingInvoiceId ? data : i); }
+            else { invoices.unshift(data); }
+            saveAccData();
+            closeInvoiceModal();
+            renderKPIs();
+            renderInvoices();
+        }
+
+        function markInvoicePaid(id) {
+            const inv = invoices.find(i => i.id === id);
+            if (inv) { inv.status = 'Ödendi'; saveAccData(); renderKPIs(); renderInvoices(); }
+        }
+
+        function deleteInvoice(id) {
+            if (!confirm('Bu fatura silinecek. Emin misiniz?')) return;
+            invoices = invoices.filter(i => i.id !== id);
+            saveAccData();
+            renderKPIs();
+            renderInvoices();
+        }
+
+        function exportAccExcel() {
+            if (typeof XLSX === 'undefined') { alert('Excel kütüphanesi yüklenmedi.'); return; }
+            const wb = XLSX.utils.book_new();
+            const data = [['Tarih','Tür','Açıklama','Kategori','Firma','Tutar (USD)','Ödeme Yöntemi']];
+            transactions.forEach(t => data.push([t.date, t.type==='gelir'?'Gelir':'Gider', t.desc, t.cat||'-', t.company||'-', t.amount, t.payment||'-']));
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Gelir-Gider');
+            const invData = [['Fatura No','Tür','Taraf','Tarih','Vade','Tutar','Durum','Açıklama']];
+            invoices.forEach(i => invData.push([i.no, i.type==='satis'?'Satış':'Alış', i.party, i.date, i.due||'-', i.amount, i.status, i.desc||'-']));
+            const ws2 = XLSX.utils.aoa_to_sheet(invData);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Faturalar');
+            XLSX.writeFile(wb, 'Muhasebe_' + new Date().toLocaleDateString('tr-TR').replace(/\./g,'-') + '.xlsx');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PİMMS SOFT CRM - Pazarlama</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .marketing-tabs {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .marketing-tab {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .marketing-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .campaign-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .campaign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .campaign-type-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 2rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <link rel="apple-touch-icon" href="img/logo.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+</head>
+
+<body>
+    <div id="auth-container">
+        <div class="auth-card animate-fade-in">
+            <div class="auth-logo" style="flex-direction: column; gap: 0;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    SOFT CRM
+                </div>
+                <span
+                    style="font-family: 'Caveat', cursive; font-size: 1.25rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em; margin-top: -0.25rem; opacity: 0.85;">Yasin
+                    Albostanlı 2026</span>
+            </div>
+            <h3
+                style="text-align: center; color: var(--text-light); font-size: 0.875rem; margin-bottom: 1.5rem; font-weight: 500;">
+                Sadece Yetkili Girişi</h3>
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>E-POSTA</label>
+                    <input type="email" id="login-email" class="auth-input" required value="admin@admin.com">
+                </div>
+                <div class="input-group">
+                    <label>ŞİFRE</label>
+                    <input type="password" id="login-password" class="auth-input" required value="123">
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="login-remember" style="width: auto; cursor: pointer;">
+                    <label for="login-remember"
+                        style="font-size: 0.8rem; color: #64748b; font-weight: 500; cursor: pointer;">Beni
+                        Hatırla</label>
+                </div>
+                <button type="submit" class="auth-btn" style="margin-top: 0.5rem;">Giriş Yap</button>
+            </form>
+            <p id="auth-error"
+                style="color: var(--danger); font-size: 0.75rem; margin-top: 1rem; text-align: center; font-weight: 500;">
+            </p>
+        </div>
+    </div>
+
+    <div class="dashboard" id="main-dashboard" style="display: none;">
+        <div id="sidebar-target"></div>
+        <main class="main-content">
+            <div id="marketing-view" class="view" style="display: block;">
+                <div class="header">
+                    <div>
+                        <h1>Pazarlama Merkezi</h1>
+                        <p style="color: var(--text-light); font-weight: 500;">Kampanyalar, segmentasyon ve ROI analizi.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="openMarketingSegmentModal()" class="btn btn-secondary"
+                            style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-users-viewfinder"></i> Hedef Kitle (Segment)
+                        </button>
+                        <button onclick="openNewCampaignModal()" class="btn btn-primary"
+                            style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-plus"></i> Yeni Kampanya Oluştur
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-grid animate-fade-in"
+                    style="margin-bottom: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div class="stat-card" style="border-top: 4px solid var(--primary);">
+                        <p class="stat-label">Aktif Kampanyalar</p>
+                        <h2 id="mkt-active-count">0</h2>
+                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700; margin-top: 0.25rem;"><i
+                                class="fa-solid fa-arrow-up"></i> %12 artış</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid var(--success);">
+                        <p class="stat-label">Toplam ROI (Ortalama)</p>
+                        <h2 id="mkt-avg-roi">%0</h2>
+                        <div
+                            style="font-size: 0.7rem; color: var(--text-light); font-weight: 600; margin-top: 0.25rem;">
+                            Yatırım Dönüşüm Oranı</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid var(--warning);">
+                        <p class="stat-label">Etkilenen Gelir</p>
+                        <h2 id="mkt-influenced-revenue">$0</h2>
+                        <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-top: 0.25rem;">
+                            Kampanya Kaynaklı Satışlar</div>
+                    </div>
+                    <div class="stat-card" style="border-top: 4px solid #8b5cf6;">
+                        <p class="stat-label">Ort. Dönüşüm Oranı</p>
+                        <h2 id="mkt-conv-rate">%0.0</h2>
+                        <div
+                            style="font-size: 0.7rem; color: var(--text-light); font-weight: 600; margin-top: 0.25rem;">
+                            Conversion Rate</div>
+                    </div>
+                </div>
+
+                <div class="marketing-tabs animate-fade-in">
+                    <div class="marketing-tab active" onclick="switchMktTab('campaigns', this)">Tüm Kampanyalar</div>
+                    <div class="marketing-tab" onclick="switchMktTab('automation', this)">Otomasyon & Akış</div>
+                    <div class="marketing-tab" onclick="switchMktTab('segments', this)">Segmentler & Listeler</div>
+                    <div class="marketing-tab" onclick="switchMktTab('analysis', this)">Detaylı Analiz & ROI</div>
+                </div>
+
+                <!-- Campaigns Content -->
+                <div id="mkt-campaigns-section" class="animate-fade-in">
+                    <div class="campaign-grid" id="campaign-list-target">
+                        <!-- Campaigns will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Automation Content (Placeholder for now) -->
+                <div id="mkt-automation-section" style="display: none;" class="animate-fade-in">
+                    <div class="content-card" style="padding: 2.5rem; text-align: center;">
+                        <i class="fa-solid fa-wand-magic-sparkles"
+                            style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;"></i>
+                        <h2 style="margin-bottom: 1rem;">Akıllı Senaryo ve Journey Akışı</h2>
+                        <p style="color: var(--text-light); max-width: 600px; margin: 0 auto 2rem; line-height: 1.6;">
+                            "E-posta açmayan → SMS gönder" veya "Satın alan → Çapraz Satış" gibi çok kanallı otomasyon
+                            kuralları burada tanımlanır.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                            <div class="stat-card"
+                                style="min-width: 250px; cursor: pointer; border: 1px dashed var(--border);"
+                                onclick="setupWinBackFlow()">
+                                <h4 style="font-size: 0.85rem; margin-bottom: 0.5rem;">🔄 Geri Kazanım (Win-back)</h4>
+                                <p style="font-size: 0.7rem; color: var(--text-light);">60-90 gün alım yapmayanlar için
+                                    özel akış.</p>
+                            </div>
+                            <div class="stat-card"
+                                style="min-width: 250px; cursor: pointer; border: 1px dashed var(--border);"
+                                onclick="setupWelcomeFlow()">
+                                <h4 style="font-size: 0.85rem; margin-bottom: 0.5rem;">👋 Hoş Geldin Serisi</h4>
+                                <p style="font-size: 0.7rem; color: var(--text-light);">Yeni müşteriler için 5 aşamalı
+                                    e-posta drip serisi.</p>
+                            </div>
+                            <div class="stat-card"
+                                style="min-width: 250px; cursor: pointer; border: 1px dashed var(--border);"
+                                onclick="setupUpsellFlow()">
+                                <h4 style="font-size: 0.85rem; margin-bottom: 0.5rem;">🚀 Upsell / Cross-sell</h4>
+                                <p style="font-size: 0.7rem; color: var(--text-light);">Eşleşen kategoriler için
+                                    otomatik çapraz satış.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segments Content -->
+                <div id="mkt-segments-section" style="display: none;" class="animate-fade-in">
+                    <div class="content-card">
+                        <div class="table-header">
+                            <h3>Aktif Segmentler & Akıllı Listeler</h3>
+                        </div>
+                        <div class="table-overflow">
+                            <table style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Segment Adı</th>
+                                        <th>Tür</th>
+                                        <th>Kriter</th>
+                                        <th>Kişi Sayısı</th>
+                                        <th>Performans (CR)</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mkt-segments-target">
+                                    <!-- Segments loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Content -->
+                <div id="mkt-analysis-section" style="display: none;" class="animate-fade-in">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3 style="font-size: 0.85rem; margin-bottom: 1.5rem;">Kanal Bazlı Dönüşüm Oranları</h3>
+                            <div style="height: 300px;"><canvas id="mktChannelChart"></canvas></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3 style="font-size: 0.85rem; margin-bottom: 1.5rem;">Kampanya Gelir Analizi (Monthly)</h3>
+                            <div style="height: 300px;"><canvas id="mktRevenueChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- New Campaign Modal -->
+    <div id="mkt-campaign-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal" onclick="closeMktCampaignModal()">&times;</span>
+            <h2 id="mkt-modal-title" style="margin-bottom: 1.5rem;">Yeni Kampanya Oluştur</h2>
+            <form onsubmit="handleNewCampaign(event)" id="mkt-campaign-form">
+                <input type="hidden" id="mkt-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Kampanya İsmi</label>
+                        <input type="text" id="mkt-name" required placeholder="Ör: Bahar Fırsatları 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Kampanya Kodu</label>
+                        <input type="text" id="mkt-code" placeholder="CAM-2026-001">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Kampanya Tipi</label>
+                        <select id="mkt-type" required>
+                            <option value="email">E-Posta</option>
+                            <option value="sms">SMS</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="social">Sosyal Medya Reklamı</option>
+                            <option value="webinar">Webinar / Etkinlik</option>
+                            <option value="birthday">Doğum Günü Kampanyası</option>
+                            <option value="winback">Geri Kazanım (Win-back)</option>
+                            <option value="referral">Referans (Referral)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hedef Kitle (Segment)</label>
+                        <select id="mkt-segment-id">
+                            <option value="all">Tüm Müşteriler</option>
+                            <option value="new">Yeni Müşteriler (Son 30 Gün)</option>
+                            <option value="dormant">Sessiz Müşteriler (90+ Gün)</option>
+                            <option value="high-value">Yüksek Değerli (VIP)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kampanya Amacı / Notlar</label>
+                    <textarea id="mkt-goal" rows="2" placeholder="Kampanya hedefi nedir?"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Bütçe ($)</label>
+                        <input type="number" id="mkt-budget" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Beklenen Gelir ($)</label>
+                        <input type="number" id="mkt-expected-revenue" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Durum</label>
+                        <select id="mkt-status">
+                            <option value="Açık">Yürürlükte</option>
+                            <option value="Taslak">Taslak</option>
+                            <option value="Tamamlandı">Bitti / Tamamlandı</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Başlangıç Tarihi</label>
+                        <input type="date" id="mkt-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label>Bitiş Tarihi</label>
+                        <input type="date" id="mkt-end-date">
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeMktCampaignModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kampanyayı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <script src="js/common.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/visits.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/marketing.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/announcements.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

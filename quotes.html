@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teklif Yönetimi - SOFT CRM</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .quote-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .brand-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .nav-tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .generator-container {
+            background: #f0f2f5;
+            padding: 2rem 0;
+            max-width: 100%;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .proforma-editor {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            margin: 0 auto;
+            padding: 15mm;
+            padding-bottom: 25mm;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            color: #000;
+            font-family: 'Verdana', sans-serif;
+            font-size: 9pt;
+            line-height: 1.4;
+        }
+
+        .proforma-editor img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .proforma-footer {
+            position: absolute;
+            bottom: 10mm;
+            left: 20mm;
+            right: 20mm;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-top: 2px solid #000;
+            padding-top: 10px;
+        }
+
+        .editor-section {
+            border: 1px solid #000;
+            margin-bottom: -1px;
+            display: flex;
+        }
+
+        .editor-box {
+            flex: 1;
+            border-right: 1px solid #000;
+            padding: 5px;
+        }
+
+        .editor-box:last-child {
+            border-right: none;
+        }
+
+        .box-label {
+            background: #eee;
+            border-bottom: 1px solid #000;
+            padding: 3px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .item-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            margin-bottom: -1px;
+        }
+
+        .item-table th {
+            background: #eee;
+            border: 1px solid #000;
+            padding: 5px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .item-table td {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+
+        .item-table input,
+        .item-table textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 2px;
+            font-family: inherit;
+            font-size: inherit;
+            background: transparent;
+        }
+
+        .bank-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            margin-top: 10px;
+            font-size: 0.65rem;
+        }
+
+        .bank-table th {
+            background: #eee;
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+
+        .bank-table td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <link rel="apple-touch-icon" href="img/logo.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+</head>
+
+<body>
+    <div class="dashboard" id="main-dashboard">
+        <div id="sidebar-target"></div>
+        <main class="main-content">
+            <div id="top-nav-bar"></div>
+
+            <div class="header" style="margin-bottom: 2rem;">
+                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Teklif Yönetimi</h1>
+                <p style="color: var(--text-light); font-weight: 500;">Profesyonel proforma teklifler hazırlayın.</p>
+            </div>
+
+            <div class="nav-tabs">
+                <div class="nav-tab active" id="tab-pool" onclick="switchTab('pool')">
+                    <i class="fa-solid fa-folder-open"></i> Dosya Havuzu
+                </div>
+                <div class="nav-tab" id="tab-generator" onclick="switchTab('generator')">
+                    <i class="fa-solid fa-file-signature"></i> Profesyonel Teklif Hazırla
+                </div>
+            </div>
+
+            <!-- TAB 1: FILE POOL -->
+            <div id="pool-view" class="tab-content">
+                <div
+                    style="display: flex; justify-content: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <button class="btn btn-primary" onclick="document.getElementById('quote-file-input').click()">
+                        <i class="fa-solid fa-plus"></i> Word / Excel Yükle
+                    </button>
+                    <button class="btn btn-primary" style="background: #28a745; border-color: #28a745;"
+                        onclick="createContractTemplate()">
+                        <i class="fa-solid fa-file-signature"></i> Yeni Sözleşme / Belge Oluştur
+                    </button>
+                    <input type="file" id="quote-file-input" style="display: none;" onchange="handleQuoteUpload(event)">
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #ff4d4d; text-align: center;"
+                        onclick="filterQuotes('Sunthinks')">
+                        <h4 style="font-size:0.85rem;">Sunthinks</h4>
+                    </div>
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #34A853; text-align: center;"
+                        onclick="filterQuotes('Aobead Pulisi')">
+                        <h4 style="font-size:0.85rem;">Aobead Pulisi</h4>
+                    </div>
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #FBBC05; text-align: center;"
+                        onclick="filterQuotes('Robotjet')">
+                        <h4 style="font-size:0.85rem;">Robotjet</h4>
+                    </div>
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #6366f1; text-align: center;"
+                        onclick="filterQuotes('Kingt')">
+                        <h4 style="font-size:0.85rem;">Kingt</h4>
+                    </div>
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #ec4899; text-align: center;"
+                        onclick="filterQuotes('Anypack')">
+                        <h4 style="font-size:0.85rem;">Anypack</h4>
+                    </div>
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #14b8a6; text-align: center;"
+                        onclick="filterQuotes('Top CNC')">
+                        <h4 style="font-size:0.85rem;">Top CNC</h4>
+                    </div>
+                    <div class="stat-card"
+                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid var(--border); text-align: center;"
+                        onclick="filterQuotes('')">
+                        <h4 style="font-size:0.85rem;">Tümü</h4>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3
+                        style="font-size: 1.1rem; color: var(--text); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-folder-open" style="color: var(--primary);"></i>
+                        Dosya Havuzu (Revize & Pool)
+                    </h3>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn btn-secondary" onclick="deleteSelectedQuotes()"
+                            style="color:var(--danger); border-color:rgba(var(--danger-rgb),0.2); background:rgba(var(--danger-rgb),0.05); font-size: 0.75rem; font-weight: 700;">
+                            <i class="fa-solid fa-trash-can"></i> Seçilenleri Sil
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.location.reload()"
+                            style="font-size: 0.75rem; font-weight: 700;">
+                            <i class="fa-solid fa-rotate"></i> Tazele
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stat-card"
+                    style="padding: 0; overflow: hidden; border: 1px solid var(--border); background: white;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: rgba(0,0,0,0.02); border-bottom: 2px solid var(--border);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: center; width: 40px;">
+                                    <input type="checkbox" onchange="toggleSelectAllQuotes(this)"
+                                        title="Tümünü Seç/Kaldır" style="cursor: pointer;">
+                                </th>
+                                <th
+                                    style="padding: 1.2rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: var(--text-light); font-weight: 800;">
+                                    Marka</th>
+                                <th
+                                    style="padding: 1.2rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: var(--text-light); font-weight: 800;">
+                                    Teklif / Dosya Adı</th>
+                                <th
+                                    style="padding: 1.2rem; text-align: center; font-size: 0.8rem; text-transform: uppercase; color: var(--text-light); font-weight: 800;">
+                                    İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quotes-container"></tbody>
+                    </table>
+                </div>
+                <div id="quotes-empty" style="display: none; text-align: center; padding: 5rem 2rem;">
+                    <i class="fa-solid fa-file-circle-question"
+                        style="font-size: 4rem; color: var(--border); margin-bottom: 1.5rem;"></i>
+                    <h3 style="color: var(--text-light);">Henüz döküman bulunmuyor.</h3>
+                </div>
+            </div>
+
+            <!-- TAB 2: GENERATOR (PROFORMA FORMAT) -->
+            <div id="generator-view" class="tab-content" style="display: none;">
+
+                <div
+                    style="max-width: 210mm; margin: 0 auto 1.5rem auto; background: var(--card-bg); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--border);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                        <div class="form-group">
+                            <label
+                                style="font-size: 0.8rem; font-weight: 700; color: var(--text-light); margin-bottom: 0.5rem; display: block;">TEKLİF
+                                MARKASI SEÇİN (Havuzda Buraya Kaydeder)</label>
+                            <select id="gen-brand-select" class="form-control" onchange="handleBrandChange()">
+                                <option value="Sunthinks">Sunthinks</option>
+                                <option value="Aobead Pulisi">Aobead Pulisi</option>
+                                <option value="Robotjet">Robotjet</option>
+                                <option value="Kingt">Kingt</option>
+                                <option value="Anypack">Anypack</option>
+                                <option value="Top CNC">Top CNC</option>
+                                <option value="Proforma">Genel Proforma</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-success" onclick="saveQuoteToMainList()"
+                                style="flex: 1; height: 42px;">
+                                <i class="fa-solid fa-save"></i> Havuza Kaydet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="max-width: 210mm; margin: 0 auto 1rem auto; display: flex; gap: 0.5rem; background: var(--card-bg); padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border);">
+                    <button class="btn btn-secondary" onclick="document.execCommand('bold', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-bold"></i></button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('italic', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-italic"></i></button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('underline', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-underline"></i></button>
+                    <div style="width: 1px; background: var(--border); margin: 0 0.5rem;"></div>
+                    <button class="btn btn-secondary" onclick="document.execCommand('justifyLeft', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-align-left"></i></button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('justifyCenter', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-align-center"></i></button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('justifyRight', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-align-right"></i></button>
+                    <div style="flex: 1;"></div>
+                    <span style="font-size: 0.75rem; color: var(--text-light); align-self: center;">Açıklama veya
+                        Şartlara tıklayıp yazıyı formatlayabilirsiniz (Excel stili).</span>
+                </div>
+
+                <div class="generator-container">
+                    <div class="proforma-editor" id="proforma-capture-area">
+                        <!-- Header -->
+                        <div
+                            style="text-align: center; border: 1px solid #000; padding: 15px; margin-bottom: -1px; position: relative;">
+                            <input type="file" id="custom-logo-file" style="display:none;"
+                                accept="image/png, image/jpeg" onchange="handleCustomLogo(event)">
+                            <div style="margin-bottom: 5px; cursor: pointer;"
+                                onclick="document.getElementById('custom-logo-file').click()"
+                                title="Logoyu değiştirmek için tıklayın">
+                                <img id="proforma-logo"
+                                    src="https://www.pimms.com/wp-content/uploads/2020/04/pimms-1.png"
+                                    style="width: 140px; height: auto; max-height: 80px;">
+                            </div>
+                            <h2 style="margin: 0; font-size: 1.1rem; font-weight: 900; letter-spacing: 2pt;">PROFORMA
+                                FATURA</h2>
+                        </div>
+
+                        <!-- Customer Info -->
+                        <div class="editor-section" style="border-bottom: 1px solid #000;">
+                            <div style="flex: 1; min-height: 100px; padding: 15px; border-right: 1px solid #000;">
+                                <select id="gen-customer" class="form-control"
+                                    style="font-weight: 950; border: none; outline: none; margin-bottom: 5px; font-size: 1.1rem; width: 100%; -webkit-appearance: none; appearance: none;"
+                                    onchange="autoFillCustomerAddress()">
+                                    <option value="">FİRMA SEÇİNİZ...</option>
+                                </select>
+                                <div id="gen-customer-address" contenteditable="true"
+                                    style="width: 100%; border: none; min-height: 40px; font-size: 0.95rem; font-family: inherit; font-weight: 500; outline: none; white-space: pre-wrap;">
+                                    Müşteri Adresi ve Detayları...</div>
+                            </div>
+                            <div style="width: 250px;"></div>
+                        </div>
+
+                        <!-- Logistics -->
+                        <div class="editor-section">
+                            <div class="editor-box" style="width: 150px; flex: none;">
+                                <div class="box-label">FATURA TARİHİ</div>
+                                <input type="text" id="gen-full-date"
+                                    style="width: 100%; text-align: center; font-weight: bold; border: none; padding: 5px;">
+                            </div>
+                            <div class="editor-box">
+                                <div class="box-label">ÖDEME ŞEKLİ</div>
+                                <div id="gen-payment-terms" contenteditable="true"
+                                    style="width: 100%; padding: 5px; border: none; min-height: 30px; font-size: 0.75rem; line-height: 1.2; outline: none; white-space: pre-wrap;">
+                                    Ödeme koşulları...</div>
+                            </div>
+                        </div>
+
+                        <!-- Items Table -->
+                        <table class="item-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">ÜRÜN KODU</th>
+                                    <th>AÇIKLAMA</th>
+                                    <th style="width: 50px;">ADET</th>
+                                    <th style="width: 60px;">BİRİM</th>
+                                    <th style="width: 110px;">ADET FİYATI</th>
+                                    <th style="width: 130px;">NET TUTAR</th>
+                                    <th style="width: 30px; background: #fff;" class="no-export"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="generator-items">
+                                <tr>
+                                    <td><input type="text" class="item-code" placeholder="Kod"
+                                            style="font-weight: 700; text-align: center;"></td>
+                                    <td>
+                                        <div class="item-desc" contenteditable="true"
+                                            style="min-height: 50px; font-size: 0.8rem; outline: none; white-space: pre-wrap; text-align: left;">
+                                            Açıklama</div>
+                                    </td>
+                                    <td><input type="number" class="item-qty" value="1" oninput="calculateGenTotals()"
+                                            style="text-align: center;"></td>
+                                    <td><input type="text" class="item-unit" value="Adet" style="text-align: center;">
+                                    </td>
+                                    <td><input type="number" class="item-price" value="0" oninput="calculateGenTotals()"
+                                            style="text-align: right;"></td>
+                                    <td class="item-total-display" style="text-align: right; font-weight: 800;">0,00
+                                    </td>
+                                    <td class="no-export" style="text-align: center;"><i class="fa-solid fa-trash"
+                                            style="color:red;"
+                                            onclick="this.closest('tr').remove(); calculateGenTotals();"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn btn-secondary no-export" onclick="addGeneratorRow()"
+                            style="margin: 10px; padding: 5px 15px; font-size: 0.7rem;">+ Yeni Satır</button>
+
+                        <!-- Totals Area -->
+                        <div style="display: flex; justify-content: flex-end; border: 1px solid #000; border-top: none;">
+                            <div style="width: 380px;">
+                                <div style="display: flex; border-bottom: 1px solid #000;">
+                                    <div style="flex: 1; padding: 8px; font-weight: 800; text-align: right; border-right: 1px solid #000;" contenteditable="true" title="Başlığı düzenle" id="gen-subtotal-label">ARA TOPLAM FİYAT USD</div>
+                                    <div id="gen-subtotal" contenteditable="true" title="Tutarı düzenle"
+                                        style="width: 130px; padding: 8px; text-align: right; font-weight: 800; outline: none; border: none;">0,00
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; border-bottom: 1px solid #000;">
+                                    <div style="flex: 1; padding: 8px; font-weight: 700; text-align: right; border-right: 1px solid #000;" contenteditable="true" title="Başlığı düzenle">%20 K.D.V. USD<br><span style="font-size:0.65rem; font-weight:400;">* Teşvikli (ithal) alımlarda KDV Muaf olacaktır.</span></div>
+                                    <div id="gen-tax" contenteditable="true" title="KDV tutarını düzenle"
+                                        style="width: 130px; padding: 8px; text-align: right; font-weight: 800; outline: none; border: none;">0,00
+                                    </div>
+                                </div>
+                                <div style="display: flex; background: #eee;">
+                                    <div contenteditable="true" title="Başlığı düzenle"
+                                        style="flex: 1; padding: 10px; font-weight: 900; text-align: right; border-right: 1px solid #000; outline: none;">GENEL TOPLAM (Istanbul Gümrük teslimi) USD</div>
+                                    <div id="gen-total" contenteditable="true" title="Toplam tutarını düzenle"
+                                        style="width: 130px; padding: 10px; text-align: right; font-weight: 900; font-size: 1.1rem; outline: none; border: none;">0,00</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Conditions Area -->
+                        <div style="display: flex; border: 1px solid #000; border-top: none; margin-top: 20px;">
+                            <div
+                                style="width: 100px; border-right: 1px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; background: #eee; font-size: 0.8rem;">
+                                <span>Teklif</span>
+                                <span>Şartları</span>
+                            </div>
+                            <div style="flex: 1; padding: 10px;">
+                                <div id="gen-conditions" contenteditable="true"
+                                    style="width: 100%; border: none; min-height: 150px; font-size: 0.7rem; font-family: inherit; line-height: 1.4; outline: none; white-space: pre-wrap;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bank Table -->
+                        <table class="bank-table" style="margin-top: 20px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;">BANKA</th>
+                                    <th style="width: 15%;">ŞUBE</th>
+                                    <th style="width: 15%;">SWIFT</th>
+                                    <th style="width: 15%;">HESAP NO</th>
+                                    <th>IBAN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Halkbank</td>
+                                    <td>Eyüp Sultan</td>
+                                    <td>TRHBT2AXXX</td>
+                                    <td>10260580</td>
+                                    <td>TR18 0001 2009 7680 0010 2605 80</td>
+                                </tr>
+                                <tr>
+                                    <td>Garanti</td>
+                                    <td>Levent San.</td>
+                                    <td>TGBATRSXXX</td>
+                                    <td>6201810</td>
+                                    <td>TR69 0006 2000 4160 0006 2018 10</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Footer -->
+                        <div class="proforma-footer">
+                            PİMMS ULUSLARARASI REKLAM ÜRÜNLERİ SAN. A. Ş.<br>
+                            Nato Cad. No:45 34418 Seyrantepe-İstanbul/Türkiye | Tel: 0 212 284 1177<br>
+                            muhasebe@pimms.com | www.pimms.com
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB 3: EXTERNAL FILE EDITOR -->
+            <div id="external-editor-view" class="tab-content" style="display: none;">
+                <div
+                    style="max-width: 210mm; margin: 0 auto 1rem auto; display: flex; gap: 0.5rem; background: var(--card-bg); padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border);">
+                    <button class="btn btn-secondary" onclick="document.execCommand('bold', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-bold"></i></button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('italic', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-italic"></i></button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('underline', false, null)"
+                        style="padding: 5px 10px;"><i class="fa-solid fa-underline"></i></button>
+                    <div style="width: 1px; background: var(--border); margin: 0 0.5rem;"></div>
+                    <button class="btn btn-secondary" onclick="document.execCommand('fontSize', false, '3')"
+                        style="padding: 5px 10px;" title="Büyük Yazı">A+</button>
+                    <button class="btn btn-secondary" onclick="document.execCommand('fontSize', false, '2')"
+                        style="padding: 5px 10px;" title="Normal Yazı">A-</button>
+                    <div style="flex: 1; display: flex; gap: 0.5rem; align-items: center;">
+                        <select id="contract-customer-select" class="form-control"
+                            style="max-width: 250px; height: 38px; border-radius: 0.4rem; font-size: 0.8rem; font-weight: 700;">
+                            <option value="">Firma Seçiniz...</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="applyCustomerToContract()"
+                            style="height: 38px; font-size: 0.75rem;"><i class="fa-solid fa-check-double"></i> Bilgileri
+                            Uygula</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="exportExternalPDF()"
+                        style="background: #28a745; border-color: #28a745;"><i class="fa-solid fa-save"></i> Kaydet ve
+                        PDF Olarak Çıkar</button>
+                </div>
+                <div class="generator-container">
+                    <div class="proforma-editor" id="external-editor-content" contenteditable="true"
+                        style="outline: none;">
+                        <!-- External content will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="brand-selector-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin-bottom: 1.5rem;">Marka Seçiniz</h2>
+            <div class="form-group">
+                <select id="selected-brand" class="form-control">
+                    <option value="Sunthinks">Sunthinks</option>
+                    <option value="Aobead Pulisi">Aobead Pulisi</option>
+                    <option value="Robotjet">Robotjet</option>
+                    <option value="Kingt">Kingt</option>
+                    <option value="Anypack">Anypack</option>
+                    <option value="Top CNC">Top CNC</option>
+                    <option value="Diğer">Diğer</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="closeBrandModal()">İptal</button>
+                <button class="btn btn-primary" onclick="finalizeUpload()">Dökümanı Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="preview-modal" class="modal">
+        <div class="modal-content" style="max-width: 90%; height: 95vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin:0;">Teklif Önizleme</h2>
+                <i class="fa-solid fa-times" style="cursor: pointer; font-size: 1.5rem; color: var(--text-light);"
+                    onclick="closePreviewModal()"></i>
+            </div>
+            <iframe id="preview-iframe" style="flex: 1; border: 1px solid var(--border); border-radius: 8px;"></iframe>
+        </div>
+    </div>
+    <input type="file" id="quote-file-input" style="display: none;" onchange="handleQuoteUpload(event)"
+        accept=".doc,.docx,.xls,.xlsx,.pdf">
+
+    <script src="js/common.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/visits.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/marketing.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/announcements.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let quotes = [];
+        let generatedQuotes = [];
+        let pendingFile = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuotes();
+            initGenerator();
+            renderTopNavBar();
+        });
+
+        function addSpecRow() {
+            const tbody = document.getElementById('spec-tbody');
+            if (!tbody) return;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td contenteditable="true" style="border: 1px solid #ccc; padding: 6px 10px; width: 40%; outline: none;">Özellik Adı</td>
+                <td contenteditable="true" style="border: 1px solid #ccc; padding: 6px 10px; outline: none;">Değer</td>
+                <td class="no-export" style="width: 30px; text-align: center; border: 1px solid #ccc;"><i class="fa-solid fa-trash" style="color:#ef4444; cursor:pointer; font-size:0.75rem;" onclick="this.closest('tr').remove()"></i></td>
+            `;
+            tbody.appendChild(tr);
+            tr.querySelector('[contenteditable]').focus();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            const tabBtn = document.getElementById('tab-' + tab);
+            if (tabBtn) tabBtn.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            const viewView = document.getElementById(tab + '-view');
+            if (viewView) viewView.style.display = 'block';
+        }
+
+        // --- FILE POOL ---
+        function loadQuotes() {
+            quotes = JSON.parse(localStorage.getItem('crm_quotes') || '[]');
+            renderQuotes();
+        }
+
+        function handleQuoteUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            pendingFile = { name: file.name, type: file.name.split('.').pop().toUpperCase(), size: (file.size / 1024).toFixed(1) + ' KB', date: new Date().toISOString() };
+            const ext = pendingFile.name.split('.').pop().toLowerCase();
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                pendingFile.data = e.target.result;
+                document.getElementById('brand-selector-modal').style.display = 'flex';
+            };
+            if (ext === 'xlsx' || ext === 'xls') {
+                reader.readAsDataURL(file); // Store as base64 array
+            } else if (ext === 'docx') {
+                reader.readAsDataURL(file); // Mammouth needs ArrayBuffer later, we can decode base64
+            } else {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function finalizeUpload() {
+            const brand = document.getElementById('selected-brand').value;
+            pendingFile.brand = brand; pendingFile.id = Date.now();
+            quotes.push(pendingFile);
+            localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+            closeBrandModal(); renderQuotes();
+            pendingFile = null;
+        }
+
+        function renderQuotes(filter = '') {
+            const container = document.getElementById('quotes-container');
+            const empty = document.getElementById('quotes-empty');
+            let list = filter ? quotes.filter(q => q.brand === filter) : quotes;
+
+            if (list.length === 0) {
+                container.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            container.innerHTML = list.map(q => `
+                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='white'">
+                    <td style="padding: 1rem; text-align: center; width: 40px;">
+                        <input type="checkbox" class="quote-checkbox" data-id="${q.id}" style="width: 16px; height: 16px; cursor: pointer;">
+                    </td>
+                    <td style="padding: 1rem;">
+                        <span class="brand-badge" style="background: rgba(var(--primary-rgb),0.1); color: var(--primary); font-weight: 700; padding: 4px 10px; border-radius: 8px;">${q.brand}</span>
+                    </td>
+                    <td style="padding: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <i class="fa-solid fa-file-pdf" style="color: #ff4d4d; font-size: 1.2rem;"></i>
+                            <span style="font-weight: 600; font-size: 0.95rem;">${q.name}</span>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.85rem;" onclick="previewQuote(${q.id})">
+                                <i class="fa-solid fa-eye"></i> Önizleme
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.85rem;" onclick="editQuote(${q.id})">
+                                <i class="fa-solid fa-edit"></i> Düzenle
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.85rem;" onclick="duplicateQuote(${q.id})">
+                                <i class="fa-solid fa-copy"></i> Kopya Oluştur
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.85rem;" onclick="downloadQuote(${q.id})">
+                                <i class="fa-solid fa-download"></i> İndir
+                            </button>
+                            <button class="btn btn-secondary" style="color:#ff4d4d; padding: 5px 12px; font-size: 0.85rem;" onclick="deleteQuote(${q.id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleSelectAllQuotes(master) {
+            document.querySelectorAll('.quote-checkbox').forEach(cb => cb.checked = master.checked);
+        }
+
+        function deleteSelectedQuotes() {
+            const selected = Array.from(document.querySelectorAll('.quote-checkbox:checked')).map(cb => parseInt(cb.getAttribute('data-id')));
+            if (selected.length === 0) { alert("Lütfen silinecek teklifleri seçin."); return; }
+            if (confirm(`${selected.length} adet teklif silinecek. Emin misiniz?`)) {
+                quotes = quotes.filter(q => !selected.includes(q.id));
+                localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+                renderQuotes();
+                logActivity('çoklu dosya sildi', `${selected.length} adet dosya`, 'Dosya Havuzu');
+            }
+        }
+
+        function filterQuotes(brand) { renderQuotes(brand); }
+        function downloadQuote(id) { const q = quotes.find(item => item.id === id); if (q) { const link = document.createElement('a'); link.href = q.data; link.download = (q.name.toLowerCase().endsWith('.pdf') || q.name.includes('.')) ? q.name : `${q.name}.pdf`; link.click(); } }
+        function deleteQuote(id) { if (confirm('Silmek istediğinize emin misiniz?')) { quotes = quotes.filter(q => q.id !== id); localStorage.setItem('crm_quotes', JSON.stringify(quotes)); renderQuotes(); } }
+        function closeBrandModal() { document.getElementById('brand-selector-modal').style.display = 'none'; }
+        function closePreviewModal() { document.getElementById('preview-modal').style.display = 'none'; }
+        function previewQuote(id) {
+            const q = quotes.find(item => item.id === id);
+            if (q) {
+                if (q.name.match(/\.(docx|xlsx|xls)$/i)) {
+                    alert("Word ve Excel dosyaları görüntülenemez, lütfen 'Düzenle' butonunu kullanın.");
+                    return;
+                }
+
+                try {
+                    if (q.data.startsWith('data:')) {
+                        const arr = q.data.split(',');
+                        const mimeBox = arr[0].match(/:(.*?);/);
+                        const mime = mimeBox ? mimeBox[1] : 'application/pdf';
+                        const bstr = atob(arr[1]);
+                        let n = bstr.length;
+                        const u8arr = new Uint8Array(n);
+                        while (n--) {
+                            u8arr[n] = bstr.charCodeAt(n);
+                        }
+                        const blob = new Blob([u8arr], { type: mime });
+                        document.getElementById('preview-iframe').src = URL.createObjectURL(blob);
+                    } else {
+                        document.getElementById('preview-iframe').src = q.data;
+                    }
+                } catch (e) {
+                    console.error('Önizleme oluşturulamadı:', e);
+                    document.getElementById('preview-iframe').src = q.data; // Fallback
+                }
+
+                document.getElementById('preview-modal').style.display = 'flex';
+            }
+        }
+
+        function duplicateQuote(id) {
+            const q = quotes.find(item => item.id === id);
+            if (q) {
+                const newName = prompt("Dosyanın yeni kopyası için isim girin:", q.name.replace(/\.[^/.]+$/, "") + " - Kopya");
+                if (newName) {
+                    const extMatch = q.name.match(/\.(docx|xlsx|xls|pdf)$/i);
+                    const ext = extMatch ? extMatch[0] : '.pdf';
+                    const finalName = newName.toLowerCase().endsWith(ext.toLowerCase()) ? newName : newName + ext;
+
+                    const newQuote = JSON.parse(JSON.stringify(q));
+                    newQuote.id = Date.now();
+                    newQuote.name = finalName;
+                    newQuote.date = new Date().toISOString();
+
+                    if (newQuote.rawData) {
+                        newQuote.rawData.originalName = finalName;
+                    }
+
+                    quotes.unshift(newQuote);
+                    localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+                    renderQuotes();
+                    alert("Dosyanızın kopyası havuza başarıyla eklendi.");
+                }
+            }
+        }
+
+        function createContractTemplate() {
+            activeEditingId = Date.now();
+            const brand = "Aobead Pulisi";
+            const newQuote = {
+                id: activeEditingId,
+                name: "Yeni_Sozlesme_" + new Date().toLocaleDateString('tr-TR') + ".pdf",
+                brand: brand,
+                data: "",
+                rawData: { isExternal: true, originalName: "Yeni_Sozlesme.pdf" },
+                date: new Date().toISOString()
+            };
+            quotes.unshift(newQuote);
+            localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+
+            switchTab('external-editor');
+            const contentDiv = document.getElementById('external-editor-content');
+
+            const savedLogo = localStorage.getItem('crm_custom_logo') || '';
+            const logoHtml = savedLogo ? `<img src="${savedLogo}" style="max-height: 50px; display: block; margin: 0 auto;">` : `<img src="https://www.pimms.com/wp-content/uploads/2020/04/pimms-1.png" style="max-height: 50px; display: block; margin: 0 auto;">`;
+
+            
+            
+            
+            contentDiv.innerHTML = `
+                <div style="padding: 10mm 15mm; font-family: 'Verdana', sans-serif; font-size: 10pt; line-height: 1.6; position: relative;">
+                    <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                    <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                        <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                    
+                    <h1 style="text-align: center; font-size: 16pt; font-weight: 900; margin-bottom: 30px; margin-top: 10px; text-transform: uppercase;">AOBEAD PULISI MAKİNE SATIŞ SÖZLEŞMESİ</h1>
+                    
+                    <div id="machine-image-drop" style="text-align: center; margin-bottom: 15px; position: relative; min-height: 200px; border: 2px dashed #ccc; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; cursor: pointer; border-radius: 8px; transition: border-color 0.2s, background 0.2s;">
+                        <div style="margin-bottom: 10px;"><i class="fa-solid fa-image fa-2x"></i></div>
+                        <div style="font-size: 0.9rem;">Makine görselini buraya <strong>CTRL+V</strong> ile yapıştırın veya <strong>sürükleyip bırakın</strong></div>
+                        <div style="font-size: 0.75rem; margin-top: 6px; color: #aaa;">Ya da tıklayarak dosya seçin</div>
+                        <input type="file" id="machine-image-input" accept="image/*" style="display:none;" onchange="handleMachineImageFile(event)">
+                    </div>
+                    
+                    <div style="color: red; font-weight: bold; margin-bottom: 40px; text-decoration: underline;">
+                        *Makine görseli temsilidir, seçilen konfigürasyona göre değişiklik gösterebilir.
+                    </div>
+                    
+                    <div style="margin-bottom: 30px; line-height: 1.8;">
+                        <span style="display:inline-block; width: 140px;">Satıcı:</span> <strong>PİMMS GROUP</strong><br>
+                        <span style="display:inline-block; width: 140px;">Adres:</span> Nato Caddesi, No:45 3/A Seyrantepe 34418 İstanbul Türkiye<br>
+                        <span style="display:inline-block; width: 140px;">Satıcının temsilcisi:</span> Sayın; Yasin ALBOSTANLI<br>
+                        <span style="display:inline-block; width: 140px;">Telefon numarası:</span> +90 543 352 72 99<br>
+                        <span style="display:inline-block; width: 140px;">E Posta:</span> yasin@pimms.com
+                    </div>
+                    
+                    <div style="margin-bottom: 40px; line-height: 1.8;">
+                        <span style="display:inline-block; width: 140px;">Alıcı:</span> <strong>[ALICI FİRMA ADI]</strong><br>
+                        <span style="display:inline-block; width: 140px;">Adres:</span> [ALICI ADRESİ]<br>
+                        <span style="display:inline-block; width: 140px;">Alıcının Temsilcisi:</span> Sayın; [TEMSİLCİ ADI]<br>
+                        <span style="display:inline-block; width: 140px;">Telefon numarası:</span> [TELEFON NUMARASI]<br>
+                        <span style="display:inline-block; width: 140px;">E Posta:</span> [E POTA]
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 80px; font-size: 9pt;">
+                        1
+                    </div>
+                </div>
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_2.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_3.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_4.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_5.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_6.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+
+                    
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_8.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+
+                    <div style="page-break-before: always; padding: 10mm 15mm; position: relative; text-align: center;">
+                        <div style="margin-bottom: 20px; text-align: center;">${logoHtml}</div>
+                        <div style="text-align: right; margin-bottom: 5px; font-weight: bold;">
+                            <span>${new Date().toLocaleDateString('tr-TR')}</span>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #000; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block; width: 100%;">
+                            <img src="img/sayfa_9.png" style="width: 100%; display: block; margin: 0 auto; max-width: 210mm; object-fit: contain;">
+                            <button onclick="triggerImageReplace(this.parentElement.querySelector('img'))" class="no-export" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"><i class="fa-solid fa-image"></i> Değiştir</button>
+                        </div>
+                    </div>
+`;
+
+
+
+            renderQuotes();
+            populateContractCustomerSelect();
+            // Makine görseli etkileşimlerini aktif et
+            setTimeout(() => setupMachineImageDrop(), 100);
+        }
+
+        function populateContractCustomerSelect() {
+            const select = document.getElementById('contract-customer-select');
+            if (!select) return;
+            select.innerHTML = '<option value="">Firma Seçiniz...</option>';
+            const customers = JSON.parse(localStorage.getItem('crm_customer_data') || '[]');
+            customers.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.A;
+                opt.innerText = c.A;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyCustomerToContract() {
+            const select = document.getElementById('contract-customer-select');
+            const firmName = select.value;
+            if (!firmName) return alert("Lütfen bir firma seçin.");
+
+            const customers = JSON.parse(localStorage.getItem('crm_customer_data') || '[]');
+            const c = customers.find(item => item.A === firmName);
+            if (!c) return;
+
+            const editor = document.getElementById('external-editor-content');
+            let content = editor.innerHTML;
+
+            // Replace placeholders
+            content = content.replace(/\[ALICI FİRMA ADI\]/g, `<strong>${c.A}</strong>`);
+            content = content.replace(/\[ALICI ADRESİ\]/g, c.B || "İstanbul"); // Assume B is city/district usually
+            content = content.replace(/\[TEMSİLCİ ADI\]/g, c.contact || "-");
+            content = content.replace(/\[TELEFON NUMARASI\]/g, c.phone || "-");
+            content = content.replace(/\[E POTA\]/g, c.email || "-");
+
+            editor.innerHTML = content;
+            setupMachineImageDrop(); // Re-setup because we replaced innerHTML
+        }
+
+        let activeEditingId = null;
+
+        // --- MAKİNE GÖRSELİ YAPAY ZEKA ---
+        function setupMachineImageDrop() {
+            const dropZone = document.getElementById('machine-image-drop');
+            if (!dropZone) return;
+
+            // Tıkla → dosya seç
+            dropZone.addEventListener('click', () => {
+                const inp = document.getElementById('machine-image-input');
+                if (inp) inp.click();
+            });
+
+            // Drag over
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#2563eb';
+                dropZone.style.background = 'rgba(37,99,235,0.05)';
+            });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.style.borderColor = '#ccc';
+                dropZone.style.background = '';
+            });
+
+            // Drop
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#ccc';
+                dropZone.style.background = '';
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => setMachineImage(ev.target.result);
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // CTRL+V (paste) - document seviyesinde dinle
+            document._machineImagePasteHandler && document.removeEventListener('paste', document._machineImagePasteHandler);
+            document._machineImagePasteHandler = function (e) {
+                const dropZoneEl = document.getElementById('machine-image-drop');
+                if (!dropZoneEl) return; // Sözleşme editörü açık değilse yoksay
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.startsWith('image/')) {
+                        const blob = items[i].getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setMachineImage(ev.target.result);
+                        reader.readAsDataURL(blob);
+                        break;
+                    }
+                }
+            };
+            document.addEventListener('paste', document._machineImagePasteHandler);
+        }
+
+        function handleMachineImageFile(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (ev) => setMachineImage(ev.target.result);
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setMachineImage(src) {
+            const dropZone = document.getElementById('machine-image-drop');
+            if (!dropZone) return;
+            dropZone.innerHTML = `
+                <div style="position:relative; width:100%;">
+                    <img src="${src}" style="max-width:100%; max-height:300px; border-radius:6px; display:block; margin:0 auto; box-shadow:0 2px 12px rgba(0,0,0,0.12);">
+                    <button onclick="clearMachineImage(event)" title="Görseli Kaldır"
+                        style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>`;
+            dropZone.style.border = '2px solid #2563eb';
+            dropZone.style.padding = '12px';
+        }
+
+        function clearMachineImage(e) {
+            e.stopPropagation();
+            const dropZone = document.getElementById('machine-image-drop');
+            if (!dropZone) return;
+            dropZone.style.border = '2px dashed #ccc';
+            dropZone.style.padding = '20px';
+            dropZone.innerHTML = `
+                <div style="margin-bottom: 10px;"><i class="fa-solid fa-image fa-2x"></i></div>
+                <div style="font-size: 0.9rem;">Makine görselini buraya <strong>CTRL+V</strong> ile yapıştırın veya <strong>sürükleyip bırakın</strong></div>
+                <div style="font-size: 0.75rem; margin-top: 6px; color: #aaa;">Ya da tıklayarak dosya seçin</div>
+                <input type="file" id="machine-image-input" accept="image/*" style="display:none;" onchange="handleMachineImageFile(event)">`;
+            setupMachineImageDrop();
+        }
+
+        function triggerImageReplace(imgElement) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+
+            fileInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        imgElement.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+                document.body.removeChild(fileInput); // Clean up the temporary input
+            };
+
+            document.body.appendChild(fileInput);
+            fileInput.click();
+        }
+
+        function handleBrandChange() {
+            const brand = document.getElementById('gen-brand-select').value;
+            const tpl = localStorage.getItem('crm_template_' + brand);
+            if (tpl) {
+                if (confirm(`${brand} markasına özel gömülmüş bir döküman şablonu bulundu.\nBu şablonu kullanarak yeni bir taslak açmak ister misiniz?`)) {
+                    const parsed = JSON.parse(tpl);
+                    const newId = Date.now();
+                    const ext = parsed.ext || '.pdf';
+                    const newQuote = {
+                        id: newId,
+                        name: "Yeni_Teklif_" + brand + ext,
+                        brand: brand,
+                        data: parsed.data,
+                        rawData: { isExternal: true, originalName: "Yeni_Teklif_" + brand + ext },
+                        date: new Date().toISOString()
+                    };
+                    quotes.unshift(newQuote);
+                    localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+                    editQuote(newId);
+                }
+            }
+        }
+
+        function editQuote(id) {
+            const q = quotes.find(item => item.id === id);
+            if (!q) return;
+
+            const extMatch = q.name.match(/\.(docx|xlsx|xls|pdf)$/i);
+
+            // Eğer dışarıdan yüklenen bir belgeyse ve rawData içermiyorsa veya harici düzenleyici içindeyse
+            if (extMatch && (!q.rawData || q.rawData.isExternal)) {
+                activeEditingId = q.id;
+                switchTab('external-editor');
+                const ext = extMatch[1].toLowerCase();
+                const contentDiv = document.getElementById('external-editor-content');
+                contentDiv.innerHTML = '<div style="text-align:center; margin-top: 50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i> Döküman Yükleniyor...</div>';
+
+                setTimeout(() => {
+                    const base64Data = q.data.split(',')[1];
+                    try {
+                        if (ext === 'xlsx' || ext === 'xls') {
+                            const workbook = XLSX.read(base64Data, { type: 'base64' });
+                            const htmlstr = XLSX.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
+                            contentDiv.innerHTML = `<h3>XLSX Düzenleyici - ${q.name}</h3><div style="font-size: 0.9rem;">${htmlstr}</div>`;
+                        } else if (ext === 'docx') {
+                            const binaryString = window.atob(base64Data);
+                            const len = binaryString.length;
+                            const bytes = new Uint8Array(len);
+                            for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
+                            mammoth.convertToHtml({ arrayBuffer: bytes.buffer }).then(function (result) {
+                                contentDiv.innerHTML = `<h3>DOCX Düzenleyici - ${q.name}</h3><br/>` + result.value;
+                            }).catch(e => {
+                                contentDiv.innerHTML = " Word dosyası okunurken hata oluştu. Lütfen buraya serbest şekilde teklifinizi hazırlayabilirsiniz.";
+                            });
+                        } else if (ext === 'pdf') {
+                            contentDiv.innerHTML = `<div style="text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i> PDF Resimlere Çevriliyor...</div>`;
+                            const loadingTask = pdfjsLib.getDocument({ data: atob(base64Data) });
+                            loadingTask.promise.then(async function (pdf) {
+                                let html = `<h3 style="margin-bottom:10px;">PDF Düzenleme Alanı</h3>
+                                <div style="font-size:0.8rem; margin-bottom:10px; color:#555;">Aşağıdaki PDF belge(ler)inin orijinal formatları resim olarak sayfalara ayrıldı. Belgenin hemen altına yeni notlarınızı, düzenlemelerinizi vb. yazıp <b>"Kaydet ve PDF Olarak Çıkar"</b> derseniz eklenenler önceki pdf ile birleştirilmiş olur.</div>
+                                <div style="min-height: 150px; border: 1px dashed #ccc; padding: 10px; margin-bottom: 20px;">[Yeni yazılarınızı buraya yazın veya tabloları ekleyin]</div>`;
+                                contentDiv.innerHTML = html;
+
+                                for (let i = 1; i <= pdf.numPages; i++) {
+                                    const page = await pdf.getPage(i);
+                                    const scale = 2.0;
+                                    const viewport = page.getViewport({ scale: scale });
+                                    const canvas = document.createElement('canvas');
+                                    const context = canvas.getContext('2d');
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
+                                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                                    const img = document.createElement('img');
+                                    img.src = canvas.toDataURL('image/jpeg', 1.0);
+                                    img.style.width = '100%';
+                                    img.style.maxWidth = '210mm';
+                                    img.style.display = 'block';
+                                    img.style.marginBottom = '5px';
+                                    contentDiv.appendChild(img);
+                                }
+                            }).catch(err => {
+                                contentDiv.innerHTML = "PDF dosyasının içeriği okunamadı. Ancak aşağıya ekstra notlar yazarak yeni bir belgeye dönüştürebilirsiniz.<br/><br/><br/>";
+                            });
+                        }
+                    } catch (err) {
+                        contentDiv.innerHTML = `Mevcut dosya okunamadı. Ancak buraya yazarak teklifinizi sıfırdan oluşturup PDF kaydedebilirsiniz.`;
+                    }
+
+                    if (!q.rawData) {
+                        q.rawData = { isExternal: true, originalName: q.name };
+                    }
+                }, 500);
+
+                return; // harici editten dön
+            }
+
+            // Standart PADACO Proforma
+            if (!q.rawData) {
+                q.rawData = {
+                    customer: q.name.replace(/\.[^/.]+$/, ""),
+                    address: "",
+                    date: new Date().toLocaleDateString('tr-TR'),
+                    payment: "",
+                    conditions: "",
+                    items: [{ code: "", desc: "Dışarıdan yüklenen evrak revizyonu", qty: "1", unit: "Adet", price: "0" }],
+                    brand: q.brand
+                };
+            }
+            switchTab('generator');
+            const d = q.rawData;
+            document.getElementById('gen-customer').value = d.customer || "";
+            document.getElementById('gen-customer-address').innerHTML = d.address || "";
+            document.getElementById('gen-full-date').value = d.date || "";
+            document.getElementById('gen-payment-terms').innerHTML = d.payment || "";
+            document.getElementById('gen-conditions').innerHTML = d.conditions || "";
+            if (d.brand) document.getElementById('gen-brand-select').value = d.brand;
+
+            // Clear and rebuild items
+            const tbody = document.getElementById('generator-items');
+            tbody.innerHTML = '';
+            (d.items || []).forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                        <td><input type="text" class="item-code" value="${item.code}" style="font-weight: 700; text-align: center;"></td>
+                        <td><div class="item-desc" contenteditable="true" style="min-height: 50px; font-size: 0.8rem; outline: none; white-space: pre-wrap; text-align: left;">${item.desc}</div></td>
+                        <td><input type="number" class="item-qty" value="${item.qty}" oninput="calculateGenTotals()" style="text-align: center; font-weight: 700;"></td>
+                        <td><input type="text" class="item-unit" value="${item.unit}" style="text-align: center;"></td>
+                        <td><input type="number" class="item-price" value="${item.price}" oninput="calculateGenTotals()" style="text-align: right; font-weight: 700;"></td>
+                        <td class="item-total-display" style="text-align: right; font-weight: 800; font-size: 1.1rem; padding-right: 5px;">0,00</td>
+                        <td class="no-export" style="text-align: center;"><i class="fa-solid fa-trash" style="color: #ff4d4d; cursor: pointer; font-size: 0.8rem;" onclick="this.closest('tr').remove(); calculateGenTotals();"></i></td>
+                    `;
+                tbody.appendChild(tr);
+            });
+            calculateGenTotals();
+            alert("Teklif düzenleme için yüklendi.");
+        }
+
+        function handleCustomLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const b64 = e.target.result;
+                    document.getElementById('proforma-logo').src = b64;
+                    localStorage.setItem('crm_custom_logo', b64);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // --- GENERATOR ---
+        function initGenerator() {
+            const savedLogo = localStorage.getItem('crm_custom_logo');
+            if (savedLogo) {
+                document.getElementById('proforma-logo').src = savedLogo;
+            }
+
+            document.getElementById('gen-full-date').value = new Date().toLocaleDateString('tr-TR');
+
+            // Populate customers
+            const customers = JSON.parse(localStorage.getItem('crm_customer_data') || '[]');
+            const select = document.getElementById('gen-customer');
+            customers.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.A;
+                opt.innerText = c.A;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('gen-payment-terms').innerHTML = "Sipariş ile %50 peşin, yurtdışı yükleme yapıldığında %40 peşin, %20 makine geldiğinde, ürün gümrüğe geldiğinde KDV'si peşin ödenecektir.";
+            document.getElementById('gen-conditions').innerHTML = "* Makine üretim süresi: 8-10 hafta<br>* Tahmini teslimat süresi: Yükleme sırasında bildirilecektir.<br>* Makinenin montajı ve kullanıcı eğitimi (1 hafta) Pimms tarafından yapılacaktır.<br>* İstanbul içi nakliye, forklift ve vinç işlemleri bedeli alıcıya aittir.<br>* Garanti süresi 1 yıldır. (Garanti makine kurulum tarihinde başlar.)<br>* Ödeme sonrası sipariş işleme alınacaktır.<br>* Döviz cinsi satışlarda; yapılan ödemelerde tahsil günündeki Garanti Bankası efektif satış kuru baz alınarak döviz karşılığı hesaba yansıtılacaktır.<br>* Sipariş iptallerinde ödeme iadesi yapılmayacaktır.<br>* Fiyat teklifimiz verildiği tarihten itibaren 10 gün geçerlidir.";
+
+            loadGeneratedHistory();
+        }
+
+        function autoFillCustomerAddress() {
+            const customerName = document.getElementById('gen-customer').value;
+            if (!customerName) {
+                document.getElementById('gen-customer-address').innerHTML = "";
+                return;
+            }
+            const customers = JSON.parse(localStorage.getItem('crm_customer_data') || '[]');
+            const customer = customers.find(c => c.A === customerName);
+            if (customer) {
+                // Formatting name and address together for clarity
+                // Using 'B' (district/city) and 'address' field
+                const parts = [];
+                if (customer.B) parts.push(customer.B);
+                if (customer.address) parts.push(customer.address);
+
+                // If both are empty, fallback to 'S' only if it doesn't look like machine info
+                // User says 'machine info' is coming, so maybe 'S' is indeed machines.
+                // We'll stick to B and address.
+                const addr = parts.join(' / ');
+                document.getElementById('gen-customer-address').innerHTML = addr.trim() || "-";
+            } else {
+                document.getElementById('gen-customer-address').innerHTML = "";
+            }
+        }
+
+        function addGeneratorRow() {
+            const tbody = document.getElementById('generator-items');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="item-code" placeholder="Kod" style="font-weight: 700; text-align: center;"></td>
+                <td><textarea class="item-desc" rows="6" placeholder="Ürün açıklaması..." style="resize: vertical; font-size: 0.8rem;"></textarea></td>
+                <td><input type="number" class="item-qty" value="1" oninput="calculateGenTotals()" style="text-align: center; font-weight: 700;"></td>
+                <td><input type="text" class="item-unit" value="Adet" style="text-align: center;"></td>
+                <td><input type="number" class="item-price" value="0" oninput="calculateGenTotals()" style="text-align: right; font-weight: 700;"></td>
+                <td class="item-total-display" style="text-align: right; font-weight: 800; font-size: 1.1rem; padding-right: 5px;">0,00</td>
+                <td class="no-export" style="text-align: center;"><i class="fa-solid fa-trash" style="color: #ff4d4d; cursor: pointer; font-size: 0.8rem;" onclick="this.closest('tr').remove(); calculateGenTotals();"></i></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function calculateGenTotals() {
+            let subtotal = 0;
+            document.querySelectorAll('#generator-items tr').forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const total = qty * price;
+                subtotal += total;
+                row.querySelector('.item-total-display').innerText = total.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+            });
+            const tax = subtotal * 0.20;
+            const finalTotal = subtotal + tax;
+            document.getElementById('gen-subtotal').innerText = subtotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+            document.getElementById('gen-tax').innerText = tax.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+            document.getElementById('gen-total').innerText = finalTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+        }
+
+        function loadGeneratedHistory() {
+            generatedQuotes = JSON.parse(localStorage.getItem('crm_generated_quotes') || '[]');
+            const tbody = document.getElementById('generated-history-body');
+            const empty = document.getElementById('gen-history-empty');
+            if (generatedQuotes.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            tbody.innerHTML = generatedQuotes.map(q => `
+                <tr>
+                    <td style="padding: 1rem;">${q.date}</td>
+                    <td style="padding: 1rem;">${q.customer}</td>
+                    <td style="padding: 1rem; text-align: right; font-weight: bold;">${q.total}</td>
+                    <td style="padding: 1rem; text-align: center;"><i class="fa-solid fa-trash" style="color:red; cursor:pointer;" onclick="deleteGeneratedQuote(${q.id})"></i></td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteGeneratedQuote(id) { if (confirm('Kayıt silinsin mi?')) { generatedQuotes = generatedQuotes.filter(q => q.id !== id); localStorage.setItem('crm_generated_quotes', JSON.stringify(generatedQuotes)); loadGeneratedHistory(); } }
+
+        async function generateProPDFBase64() {
+            return new Promise(async (resolve) => {
+                window.scrollTo(0, 0);
+                const element = document.getElementById('proforma-capture-area');
+
+                // Temp hide no-exports
+                const noExports = element.querySelectorAll('.no-export');
+                noExports.forEach(el => el.style.display = 'none');
+
+                // Keep inputs editable but make them look flat during print
+                const inputs = element.querySelectorAll('input, select');
+                const oldStyles = [];
+                inputs.forEach(el => {
+                    oldStyles.push({ border: el.style.border, appearance: el.style.appearance });
+                    el.style.border = 'none';
+                    el.style.appearance = 'none';
+                    el.style.WebkitAppearance = 'none';
+                });
+
+                const container = element.parentElement;
+                const oldOverflow = container.style.overflowX;
+                container.style.overflowX = 'visible';
+
+                // Append Aobead images temporarily if brand is Aobead Pulisi
+                const selectedBrand = document.getElementById('gen-brand-select').value;
+                const addedImages = [];
+                if (selectedBrand === 'Aobead Pulisi') {
+                    const promises = [];
+                    for (let i = 1; i <= 3; i++) {
+                        const pb = document.createElement('div');
+                        pb.className = 'html2pdf__page-break';
+
+                        const img = document.createElement('img');
+                        img.style.width = '100%';
+                        img.style.display = 'block';
+                        img.style.marginTop = '0';
+                        const p = new Promise(res => {
+                            img.onload = res;
+                            img.onerror = res;
+                            img.src = `img/aobead_${i}.png`;
+                        });
+                        promises.push(p);
+
+                        element.appendChild(pb);
+                        element.appendChild(img);
+                        addedImages.push(pb, img);
+                    }
+                    await Promise.all(promises);
+                }
+
+                const opt = {
+                    margin: 0,
+                    filename: 'proforma.pdf',
+                    image: { type: 'jpeg', quality: 1.0 },
+                    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).outputPdf('datauristring').then(pdfDataUri => {
+                    container.style.overflowX = oldOverflow;
+                    // Restore original
+                    noExports.forEach(el => el.style.display = '');
+                    inputs.forEach((el, index) => {
+                        el.style.border = oldStyles[index].border;
+                        el.style.appearance = oldStyles[index].appearance;
+                        el.style.WebkitAppearance = oldStyles[index].appearance;
+                    });
+
+                    // Remove appended images
+                    addedImages.forEach(el => el.remove());
+
+                    resolve(pdfDataUri);
+                });
+            });
+        }
+
+        async function saveQuoteToMainList() {
+            const customerName = document.getElementById('gen-customer').value;
+            const customerInfo = document.getElementById('gen-customer-address').innerHTML;
+            const paymentTerms = document.getElementById('gen-payment-terms').innerHTML;
+            const conditions = document.getElementById('gen-conditions').innerHTML;
+            const dateStr = document.getElementById('gen-full-date').value;
+
+            if (!customerName) { alert("Lütfen bir firma seçin."); return; }
+
+            // Collect raw items for editing later
+            const items = Array.from(document.querySelectorAll('#generator-items tr')).map(row => ({
+                code: row.querySelector('.item-code')?.value || "",
+                desc: row.querySelector('.item-desc')?.innerHTML || "",
+                qty: row.querySelector('.item-qty')?.value || "1",
+                unit: row.querySelector('.item-unit')?.value || "Adet",
+                price: row.querySelector('.item-price')?.value || "0"
+            }));
+
+            // Use html2pdf instead of custom drawing
+            const pdfData = await generateProPDFBase64();
+
+            const selectedBrand = document.getElementById('gen-brand-select').value;
+            const newQuote = {
+                id: Date.now(),
+                name: `Proforma - ${customerName} (${dateStr}).pdf`,
+                brand: selectedBrand,
+                data: pdfData,
+                rawData: {
+                    customer: customerName,
+                    address: customerInfo,
+                    date: dateStr,
+                    brand: selectedBrand,
+                    payment: paymentTerms,
+                    conditions: conditions,
+                    items: items
+                },
+                date: new Date().toISOString()
+            };
+
+            quotes.unshift(newQuote);
+            localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+
+            alert("Teklif ana listeye (Dosya Havuzu) başarıyla kaydedildi!");
+            renderQuotes();
+            switchTab('pool');
+        }
+
+        async function exportExternalPDF() {
+            if (!activeEditingId) return;
+            const qIndex = quotes.findIndex(i => i.id === activeEditingId);
+            if (qIndex < 0) return;
+
+            window.scrollTo(0, 0);
+            const element = document.getElementById('external-editor-content');
+
+            const container = element.parentElement;
+            const oldOverflow = container.style.overflowX;
+            container.style.overflowX = 'visible';
+
+            const opt = {
+                margin: 0,
+                filename: 'revize_belge.pdf',
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'] }
+            };
+
+            const pdfData = await html2pdf().set(opt).from(element).outputPdf('datauristring');
+
+            container.style.overflowX = oldOverflow;
+
+            // Generate a fresh object to replace it
+            const newName = quotes[qIndex].name.replace(/\.[^/.]+$/, "") + "_Revize.pdf";
+
+            quotes[qIndex].data = pdfData;
+            quotes[qIndex].name = newName;
+            quotes[qIndex].date = new Date().toISOString();
+
+            localStorage.setItem('crm_quotes', JSON.stringify(quotes));
+            alert("Belge başarıyla düzenlendi ve havuza PDF olarak kaydedildi!");
+            renderQuotes();
+            switchTab('pool');
+        }
+    </script>
+    <script src="js/common.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/visits.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/marketing.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/announcements.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
