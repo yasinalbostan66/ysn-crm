@@ -8,6 +8,13 @@ function renderAnnouncements() {
 
     let announcements = [];
     try { announcements = JSON.parse(localStorage.getItem('crm_announcements') || '[]'); } catch (e) { announcements = []; }
+    
+    // Purge old system announcements to satisfy user request
+    const originalLen = announcements.length;
+    announcements = announcements.filter(a => !a.isSystem);
+    if (announcements.length !== originalLen) {
+        localStorage.setItem('crm_announcements', JSON.stringify(announcements));
+    }
 
     // Admin check for "Add Announcement" button
     const addBtn = document.getElementById('add-announcement-btn');
@@ -155,6 +162,7 @@ function renderHomeAnnouncement() {
     if (!box) return;
     let ann = [];
     try { ann = JSON.parse(localStorage.getItem('crm_announcements') || '[]'); } catch (e) { ann = []; }
+    ann = ann.filter(a => !a.isSystem);
 
     if (ann.length === 0) {
         box.innerHTML = '<div style="font-size:0.75rem; color:var(--text-light); font-style:italic;">Yeni duyuru bulunmuyor.</div>';

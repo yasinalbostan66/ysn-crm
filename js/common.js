@@ -328,22 +328,6 @@ function logActivity(action, target, details = null) {
     if (activities.length > 200) activities.pop();
     localStorage.setItem('crm_activities', JSON.stringify(activities));
 
-    // Also push to announcements as requested: "ne işlem yapılıyor ise duyurularda göster"
-    let announcements = [];
-    try { announcements = JSON.parse(localStorage.getItem('crm_announcements') || '[]'); } catch (e) { announcements = []; }
-
-    const systemAnn = {
-        id: 'sys_' + Date.now(),
-        title: action,
-        text: `${currentUser ? currentUser.name : 'Bir kullanıcı'} ${target} üzerinde ${action.toLowerCase()} gerçekleştirdi. ${details ? 'Detay: ' + details : ''}`,
-        date: new Date().toISOString(),
-        isSystem: true
-    };
-
-    announcements.unshift(systemAnn);
-    if (announcements.length > 50) announcements.pop(); // Keep manageable
-    localStorage.setItem('crm_announcements', JSON.stringify(announcements));
-
     if (typeof renderHomeAnnouncement === 'function') renderHomeAnnouncement();
     if (window.location.pathname.includes('announcements.html') && typeof renderAnnouncements === 'function') renderAnnouncements();
 }

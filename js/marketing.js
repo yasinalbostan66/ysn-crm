@@ -9,33 +9,10 @@ function renderMarketing() {
     const totalCampEl = document.getElementById('mkt-active-count');
     if (totalCampEl) totalCampEl.innerText = campaigns.filter(c => c.status === 'Açık').length;
 
-    try {
-        const mktCtx1 = document.getElementById('mktChannelChart')?.getContext('2d');
-        if (mktCtx1 && typeof Chart !== 'undefined') {
-            if (window.mktChannelChart) window.mktChannelChart.destroy();
-            window.mktChannelChart = new Chart(mktCtx1, {
-                type: 'doughnut',
-                data: { labels: ['E-Posta', 'Sosyal Medya', 'Google Ads', 'Fuar', 'Referans'], datasets: [{ data: [35, 25, 20, 15, 5], backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#94a3b8'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } } }
-            });
-        }
-    } catch (e) { console.warn('Chart error:', e); }
-
-    try {
-        const mktCtx2 = document.getElementById('mktRevenueChart')?.getContext('2d');
-        if (mktCtx2 && typeof Chart !== 'undefined') {
-            if (window.mktRevenueChart) window.mktRevenueChart.destroy();
-            window.mktRevenueChart = new Chart(mktCtx2, {
-                type: 'bar',
-                data: { labels: ['Oca', 'Şub', 'Mar', 'Nis'], datasets: [{ label: 'Harcanan ($)', data: [1200, 1900, 1500, 2100], backgroundColor: '#94a3b8' }, { label: 'Dönüş (x1k $)', data: [5, 12, 8, 15], backgroundColor: '#10b981' }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-            });
-        }
-    } catch (e) { console.warn('Chart error:', e); }
-
+    // Do not render charts here as they are initially display:none
     renderMarketingCampaigns();
     renderMarketingSegments();
-    renderMarketingAnalysis();
+    // Intentionally skipped renderMarketingAnalysis() here to prevent early Chart rendering
 }
 
 function openNewCampaignModal() {
@@ -165,8 +142,29 @@ function renderMarketingSegments() {
 }
 
 function renderMarketingAnalysis() {
-    // Basic summary log
-    console.log("Marketing Analysis Rendered");
+    try {
+        const mktCtx1 = document.getElementById('mktChannelChart')?.getContext('2d');
+        if (mktCtx1 && typeof Chart !== 'undefined') {
+            if (window.mktChannelChart) window.mktChannelChart.destroy();
+            window.mktChannelChart = new Chart(mktCtx1, {
+                type: 'doughnut',
+                data: { labels: ['E-Posta', 'Sosyal Medya', 'Google Ads', 'Fuar', 'Referans'], datasets: [{ data: [35, 25, 20, 15, 5], backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#94a3b8'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } } }
+            });
+        }
+    } catch (e) { console.warn('Chart error:', e); }
+
+    try {
+        const mktCtx2 = document.getElementById('mktRevenueChart')?.getContext('2d');
+        if (mktCtx2 && typeof Chart !== 'undefined') {
+            if (window.mktRevenueChart) window.mktRevenueChart.destroy();
+            window.mktRevenueChart = new Chart(mktCtx2, {
+                type: 'bar',
+                data: { labels: ['Oca', 'Şub', 'Mar', 'Nis'], datasets: [{ label: 'Harcanan ($)', data: [1200, 1900, 1500, 2100], backgroundColor: '#94a3b8' }, { label: 'Dönüş (x1k $)', data: [5, 12, 8, 15], backgroundColor: '#10b981' }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
+        }
+    } catch (e) { console.warn('Chart error:', e); }
 }
 
 function switchMktTab(tab, el) {
@@ -180,6 +178,8 @@ function switchMktTab(tab, el) {
 
     document.getElementById('mkt-' + tab + '-section').style.display = 'block';
 
-    // Always re-render when switching to ensure data is fresh
-    renderMarketing();
+    // charts should only re-render when their container is actually visible
+    if (tab === 'analysis') {
+        renderMarketingAnalysis();
+    }
 }

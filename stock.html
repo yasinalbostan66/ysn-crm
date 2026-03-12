@@ -114,15 +114,15 @@
 
             <!-- Filters & Search -->
             <div class="content-card animate-fade-in" style="overflow: hidden;">
-                <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
-                        <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-light);">Kategori:</span>
-                        <span class="category-chip active" id="cat-all" onclick="filterStockByCategory('')">Tümü</span>
-                        <span class="category-chip" id="cat-makine" onclick="filterStockByCategory('Makine')">🏭 Makine</span>
-                        <span class="category-chip" id="cat-yedek" onclick="filterStockByCategory('Yedek Parça')">🔧 Yedek Parça</span>
-                        <span class="category-chip" id="cat-malzeme" onclick="filterStockByCategory('Sarf Malzeme')">📦 Sarf Malzeme</span>
-                        <span class="category-chip" id="cat-ekipman" onclick="filterStockByCategory('Ekipman')">🖥️ Ekipman</span>
-                        <span class="category-chip" id="cat-diger" onclick="filterStockByCategory('Diğer')">📁 Diğer</span>
+                <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; flex-wrap: nowrap; gap: 0.5rem; align-items: center; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; width: 100%;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-light); flex-shrink: 0;">Kategori:</span>
+                        <span class="category-chip active" id="cat-all" onclick="filterStockByCategory('')" style="flex-shrink: 0;">Tümü</span>
+                        <span class="category-chip" id="cat-makine" onclick="filterStockByCategory('Makine')" style="flex-shrink: 0;">🏭 Makine</span>
+                        <span class="category-chip" id="cat-yedek" onclick="filterStockByCategory('Yedek Parça')" style="flex-shrink: 0;">🔧 Yedek Parça</span>
+                        <span class="category-chip" id="cat-malzeme" onclick="filterStockByCategory('Sarf Malzeme')" style="flex-shrink: 0;">📦 Sarf Malzeme</span>
+                        <span class="category-chip" id="cat-ekipman" onclick="filterStockByCategory('Ekipman')" style="flex-shrink: 0;">🖥️ Ekipman</span>
+                        <span class="category-chip" id="cat-diger" onclick="filterStockByCategory('Diğer')" style="flex-shrink: 0;">📁 Diğer</span>
                     </div>
                     <div style="position: relative; min-width: 220px;">
                         <i class="fa-solid fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 0.8rem;"></i>

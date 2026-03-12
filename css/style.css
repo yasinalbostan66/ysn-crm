@@ -320,6 +320,8 @@ main {
 
 .table-overflow {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 
 table {
@@ -436,6 +438,17 @@ tr:hover {
     box-shadow: var(--shadow-lg);
     position: relative;
 }
+
+.modal-content * {
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+/* Restoring table and inputs white space inside modals */
+.modal-content select, .modal-content input, .modal-content h1, .modal-content h2, .modal-content h3, .modal-content th, .modal-content td {
+    white-space: normal;
+}
+
 
 .close-modal {
     position: absolute;
@@ -748,6 +761,24 @@ tr:hover {
 
     .header {
         flex-wrap: wrap;
+    }
+
+    .modal-content {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    .marketing-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 0.5rem;
+    }
+
+    .marketing-tab {
+        flex: 0 0 auto;
     }
 
     .header > div {

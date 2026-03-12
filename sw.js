@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soft-crm-cache-v5';
+const CACHE_NAME = 'soft-crm-cache-v6';
 const urlsToCache = [
   './',
   './index.html',
