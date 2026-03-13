@@ -84,13 +84,18 @@ async function init() {
             if (typeof updateUsersStatusPane === 'function') updateUsersStatusPane();
         }, 10000);
 
-        // Pre-fill email if remembered (for next visit context, though logged in)
-        const rememberedEmail = localStorage.getItem('crm_remembered_email');
-        if (rememberedEmail && document.getElementById('login-email')) {
-            document.getElementById('login-email').value = rememberedEmail;
-            document.getElementById('login-remember').checked = true;
-        }
+    }
 
+    // Pre-fill email if remembered (independent of current login status)
+    const rememberedEmail = localStorage.getItem('crm_remembered_email');
+    if (rememberedEmail) {
+        const emailInput = document.getElementById('login-email');
+        const rememberCheck = document.getElementById('login-remember');
+        if (emailInput) emailInput.value = rememberedEmail;
+        if (rememberCheck) rememberCheck.checked = true;
+    }
+
+    if (currentUser) {
         // Display Dashboard
         showDashboard();
         return;

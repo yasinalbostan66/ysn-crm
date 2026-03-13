@@ -13,6 +13,13 @@
     --transition: all 0.3s ease;
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --font-scale: 1;
+}
+
+@media (min-width: 1921px) {
+    :root {
+        --font-scale: 1.1;
+    }
 }
 
 [data-theme="dark"] {
@@ -161,6 +168,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
+    font-size: calc(1rem * var(--font-scale, 1));
 }
 
 body {
@@ -240,7 +248,8 @@ body {
 
 /* Main Content Styles */
 main {
-    padding: 2rem;
+    padding: 2.5rem;
+    max-width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     background: var(--bg);
