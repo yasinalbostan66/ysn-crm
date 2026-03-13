@@ -2,7 +2,18 @@
  * app.js - Application Init and Orchestration 
  */
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', async () => {
+    // Firebase bulut senkronizasyonu - önce çalıştır
+    if (typeof initFirebase === 'function') {
+        try {
+            await initFirebase();
+            console.log('[App] Firebase senkronizasyonu tamamlandı');
+        } catch(e) {
+            console.warn('[App] Firebase başlatılamadı, localStorage ile devam ediliyor:', e.message);
+        }
+    }
+    init();
+});
 
 async function init() {
     // Inject Modals immediately to ensure buttons work
