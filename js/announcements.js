@@ -57,7 +57,8 @@ function renderAnnouncements() {
         const dateStr = new Date(ann.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         const typeIcon = ann.isSystem ? 'fa-gears' : 'fa-bullhorn';
         const typeColor = ann.isSystem ? 'var(--secondary)' : 'var(--primary)';
-        const typeLabel = ann.isSystem ? 'SİSTEM GÜNCELLEMESİ' : 'DUYURU';
+    const typeLabel = ann.isSystem ? 'SİSTEM GÜNCELLEMESİ' : 'DUYURU';
+
 
         return `
             <div class="stat-card announcement-card" data-id="${ann.id}" style="padding: 1.5rem; position: relative; border-left: 4px solid ${typeColor}; background: ${ann.isSystem ? 'rgba(var(--primary-rgb),0.02)' : 'var(--card-bg)'}">

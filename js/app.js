@@ -41,6 +41,18 @@ async function init() {
         localStorage.setItem('crm_users', JSON.stringify(cleanUsers));
     }
 
+    // Check for persistent session
+    if (!currentUser) {
+        const persistentSession = localStorage.getItem('crm_user_session');
+        if (persistentSession) {
+            try {
+                currentUser = JSON.parse(persistentSession);
+            } catch (e) {
+                localStorage.removeItem('crm_user_session');
+            }
+        }
+    }
+
     if (currentUser) {
         // Log online status
         let onlineUsers = {};
@@ -49,12 +61,23 @@ async function init() {
         localStorage.setItem('crm_online_users', JSON.stringify(onlineUsers));
 
         // Start services
-        updateTime();
-        setInterval(updateTime, 1000);
-        fetchExchangeRates();
-        setInterval(fetchExchangeRates, 1000 * 60 * 30);
-        fetchWeather();
-        setInterval(fetchWeather, 1000 * 60 * 30);
+        if (typeof updateTime === 'function') {
+            updateTime();
+            if (!window.__timeSet) {
+                setInterval(updateTime, 1000);
+                window.__timeSet = true;
+            }
+        }
+        
+        if (typeof fetchExchangeRates === 'function') {
+            fetchExchangeRates();
+            setInterval(fetchExchangeRates, 1000 * 60 * 30);
+        }
+
+        if (typeof fetchWeather === 'function') {
+            fetchWeather();
+            setInterval(fetchWeather, 1000 * 60 * 30);
+        }
 
         setInterval(() => {
             if (typeof updateStats === 'function') updateStats();

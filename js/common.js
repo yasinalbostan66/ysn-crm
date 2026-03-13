@@ -262,8 +262,10 @@ function handleLogin(event) {
 
     if (remember) {
         localStorage.setItem('crm_remembered_email', user.email);
+        localStorage.setItem('crm_user_session', JSON.stringify(user));
     } else {
         localStorage.removeItem('crm_remembered_email');
+        localStorage.removeItem('crm_user_session');
     }
     sessionStorage.setItem('crm_user_session', JSON.stringify(user));
 

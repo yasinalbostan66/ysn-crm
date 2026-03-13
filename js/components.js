@@ -26,14 +26,10 @@ function renderSidebar() {
     ];
 
     let html = `
-        <aside class="sidebar" style="display: flex; flex-direction: column; height: 100vh;">
-            <div class="logo-container" style="padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
-                <div class="logo" style="flex-direction: column; align-items: flex-start; gap: 0; padding: 0; cursor: pointer;" onclick="window.location.href='index.html'">
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-layer-group" style="font-size: 1.5rem; color: var(--primary);"></i>
-                        LİNKUP CRM
-                    </div>
-                    <span style="font-family: 'Caveat', cursive; font-size: 0.9rem; font-weight: 500; color: #38bdf8; display: block; margin-left: 2rem; transform: translateY(-4px); opacity: 0.9;">Yasin Albostanlı 2026</span>
+        <aside class="sidebar" style="display: flex; flex-direction: column; height: 100vh; padding-top: 0 !important;">
+            <div class="logo-container" style="padding: 2.5rem 1.5rem; background: white; flex-shrink: 0; display: flex; justify-content: center;">
+                <div class="logo" style="padding: 0; cursor: pointer;" onclick="window.location.href='index.html'">
+                    <img src="img/logo.png" style="width: 240px; height: auto; display: block;">
                 </div>
             </div>
             
@@ -147,8 +143,7 @@ function renderTopNavBar() {
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
             <div style="text-align: right; line-height: 1.2;">
-                <div style="font-size: 0.75rem; color: var(--text-light); font-weight: 500;">Pürüzsüz Deneyim</div>
-                <div style="font-family: 'Caveat', cursive; font-size: 1.1rem; color: var(--primary); font-weight: 700;">LİNKUP CRM 2026</div>
+                <img src="img/logo.png" style="height: 75px; width: auto; opacity: 1;">
             </div>
         </div>
     `;
