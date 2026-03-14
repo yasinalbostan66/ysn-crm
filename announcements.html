@@ -24,10 +24,11 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
+<script>(function(){var s=localStorage.getItem("crm_user_session")||sessionStorage.getItem("crm_user_session");if(s){document.documentElement.classList.add("has-session");}})();</script>
 </head>
 
 <body>
-    <div id="auth-container">
+    <div id="auth-container" style="display:none">
         <div class="auth-card animate-fade-in">
             <div class="auth-logo" style="flex-direction: column; gap: 0;">
                 <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">

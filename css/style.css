@@ -16,6 +16,25 @@
     --font-scale: 1;
 }
 
+/* ============================================================
+   FLASH ÖNLEYİCİ: Oturum varsa auth ekranı hiç görünmesin
+   has-session class'ı page load anında <html>'e eklenir
+   ============================================================ */
+html.has-session #auth-container {
+    display: none !important;
+}
+
+html.has-session #main-dashboard {
+    display: flex !important;
+}
+
+/* Auth container varsayılan kapalı - JS açar */
+#auth-container {
+    display: none;
+}
+
+
+
 @media (min-width: 1921px) {
     :root {
         --font-scale: 1.1;
