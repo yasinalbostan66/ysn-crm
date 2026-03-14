@@ -652,71 +652,144 @@ function updatePipelineChart(data) {
 /* Exports & Imports */
 async function exportViewToPDF(viewId) {
     const element = document.getElementById(viewId);
-    if (!element) return;
-    const titleText = element.querySelector('h1')?.innerText || 'Satış Analizi';
-    const buttons = element.querySelectorAll('button');
-    buttons.forEach(b => { b.style.opacity = '0'; b.style.pointerEvents = 'none'; });
+    if (!element) return alert('Görünüm bulunamadı: ' + viewId);
+
+    const titleText = element.querySelector('h1')?.innerText
+        || element.querySelector('h2')?.innerText
+        || 'CRM Raporu';
+
+    // Butonları gizle
+    const buttons = element.querySelectorAll('button, a.btn');
+    buttons.forEach(b => { b.dataset._op = b.style.opacity; b.style.opacity = '0'; b.style.pointerEvents = 'none'; });
 
     try {
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) throw new Error('jsPDF kütüphanesi yüklenemedi.');
+
+        // Chart görsellerini al
         const chartImages = [];
         element.querySelectorAll('canvas').forEach(canv => {
-            try { chartImages.push({ id: canv.id, src: canv.toDataURL('image/png') }); } catch (e) { chartImages.push(null); }
+            try { chartImages.push({ id: canv.id, src: canv.toDataURL('image/png') }); } catch (e) {}
         });
 
+        // Profesyonel HTML şablonu oluştur
         const offscreen = document.createElement('div');
-        offscreen.style.cssText = 'position:fixed;top:-99999px;left:0;width:1100px;padding:40px;background:#ffffff;color:#1e293b;font-family:Arial,sans-serif;';
+        offscreen.style.cssText = 'position:fixed;top:-99999px;left:0;width:1100px;padding:48px;background:#ffffff;color:#1e293b;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;';
+
         const dateStr = new Date().toLocaleString('tr-TR');
+
         let html = `
-            <div style="display:flex;justify-content:space-between;border-bottom:3px solid #2563eb;padding-bottom:20px;margin-bottom:28px;">
-                <div><div style="font-size:26px;font-weight:800;color:#2563eb;">LİNKUP CRM</div></div>
-                <div style="text-align:right;"><div style="font-size:20px;font-weight:700;">${titleText}</div><div>${dateStr}</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #2563eb;padding-bottom:24px;margin-bottom:32px;">
+                <div>
+                    <div style="font-size:28px;font-weight:900;color:#2563eb;letter-spacing:-0.5px;">LİNKUP CRM</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">Profesyonel Müşteri Yönetim Sistemi</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:22px;font-weight:800;color:#1e293b;">${titleText}</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">${dateStr}</div>
+                </div>
             </div>`;
 
+        // KPI kartları - hem stat-label/stat-value hem h2 ile label hem de p/h2 kombinasyonu
         const kpiCards = [];
         element.querySelectorAll('.stat-card').forEach(card => {
-            const label = card.querySelector('.stat-label')?.innerText;
-            const value = card.querySelector('.stat-value')?.innerText;
-            if (label && value) kpiCards.push({ label, value });
+            const labelEl = card.querySelector('.stat-label, p[style*="text-light"], [style*="font-size: 0.75rem"]');
+            const valueEl = card.querySelector('h2, .stat-value, [style*="font-size: 2.5rem"], [style*="font-size:2.5rem"]');
+            const label = labelEl?.innerText?.trim();
+            const value = valueEl?.innerText?.trim();
+            if (label && value && value !== '-') kpiCards.push({ label, value });
         });
+
         if (kpiCards.length > 0) {
-            html += `<div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap;">`;
-            kpiCards.forEach(k => { html += `<div style="flex:1;min-width:160px;background:#f8fafc;border:1px solid #e2e8f0;padding:14px;border-left:4px solid #2563eb;"><div>${k.label}</div><div style="font-size:20px;font-weight:800;">${k.value}</div></div>`; });
+            html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:32px;">`;
+            kpiCards.forEach(k => {
+                html += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #2563eb;padding:16px;border-radius:8px;">
+                    <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">${k.label}</div>
+                    <div style="font-size:22px;font-weight:900;color:#1e293b;">${k.value}</div>
+                </div>`;
+            });
             html += `</div>`;
         }
 
+        // Grafikler
         if (chartImages.length > 0) {
-            html += `<div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap;">`;
-            chartImages.forEach(img => { if (img) html += `<div style="flex:1;min-width:280px;"><img src="${img.src}" style="width:100%;"></div>`; });
+            html += `<div style="display:flex;gap:16px;margin-bottom:32px;flex-wrap:wrap;">`;
+            chartImages.forEach(img => {
+                if (img) html += `<div style="flex:1;min-width:280px;max-width:48%;"><img src="${img.src}" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;"></div>`;
+            });
             html += `</div>`;
         }
 
-        element.querySelectorAll('table').forEach(tbl => {
-            html += `<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">`;
+        // Tablolar - tüm tabloları al
+        const tables = element.querySelectorAll('table');
+        tables.forEach(tbl => {
+            // Boş tablo kontrolü
+            const rows = tbl.querySelectorAll('tbody tr');
+            if (rows.length === 0) return;
+
+            html += `<table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:11px;">`;
             tbl.querySelectorAll('tr').forEach((row, ri) => {
                 const isHdr = row.parentElement.tagName === 'THEAD';
                 html += `<tr>`;
                 row.querySelectorAll('th,td').forEach(cell => {
-                    html += `<${isHdr ? 'th' : 'td'} style="padding:7px;border:1px solid #e2e8f0;background:${isHdr ? '#1e293b' : (ri % 2 ? '#f8fafc' : '#fff')};color:${isHdr ? '#fff' : '#1e293b'};">${cell.innerText}</${isHdr ? 'th' : 'td'}>`;
+                    const bg = isHdr ? '#1e293b' : (ri % 2 === 0 ? '#f8fafc' : '#ffffff');
+                    const color = isHdr ? '#ffffff' : '#1e293b';
+                    html += `<${isHdr ? 'th' : 'td'} style="padding:9px 12px;border:1px solid #e2e8f0;background:${bg};color:${color};text-align:left;font-weight:${isHdr ? '700' : '400'};">${cell.innerText}</${isHdr ? 'th' : 'td'}>`;
                 });
                 html += `</tr>`;
             });
             html += `</table>`;
         });
 
+        // Footer
+        html += `<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between;">
+            <span>LİNKUP CRM © ${new Date().getFullYear()}</span>
+            <span>Bu rapor otomatik olarak oluşturulmuştur.</span>
+        </div>`;
+
         offscreen.innerHTML = html;
         document.body.appendChild(offscreen);
-        await new Promise(r => setTimeout(r, 500));
-        const canvas = await html2canvas(offscreen, { scale: 2, useCORS: true });
+        await new Promise(r => setTimeout(r, 600));
+
+        const canvas = await html2canvas(offscreen, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+        });
         document.body.removeChild(offscreen);
-        const { jsPDF } = window.jspdf;
+
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const imgW = pdfW;
         const imgH = (canvas.height * pdfW) / canvas.width;
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, imgH);
-        pdf.save(`${titleText.replace(/\s+/g, '_')}.pdf`);
-    } catch (err) { alert('PDF Hatası: ' + err.message); }
-    finally { buttons.forEach(b => { b.style.opacity = '1'; b.style.pointerEvents = 'auto'; }); }
+
+        // Çok sayfalı destek
+        if (imgH <= pdfH) {
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, imgW, imgH);
+        } else {
+            let remaining = imgH;
+            let position = 0;
+            while (remaining > 0) {
+                pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, -position, imgW, imgH);
+                remaining -= pdfH;
+                position += pdfH;
+                if (remaining > 0) pdf.addPage();
+            }
+        }
+
+        pdf.save(`${titleText.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+
+    } catch (err) {
+        alert('PDF Hatası: ' + err.message);
+        console.error('PDF Error:', err);
+    } finally {
+        buttons.forEach(b => { b.style.opacity = b.dataset._op || '1'; b.style.pointerEvents = 'auto'; });
+    }
 }
+
+
 
 function exportViewToExcel(viewId) {
     const dateStr = new Date().toISOString().split('T')[0];

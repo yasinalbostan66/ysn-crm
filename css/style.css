@@ -847,7 +847,40 @@ tr:hover {
     .btn, .mobile-menu-btn {
         min-height: 44px; /* Apple Human Interface Guidelines minimum hit area */
     }
+
+    /* Ana sayfa tabloları mobilde scroll ile görünsün */
+    #home-customers-body tr td,
+    table td, table th {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Tüm tablolar mobilde yatay scroll ile görünsün */
+    .content-card div[style*="overflow-x: auto"],
+    .table-overflow,
+    table {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* İnline style olan overflow-x auto container'ları koru */
+    div[style*="overflow-x: auto"] {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Mobilde table'ı sıkıştırma, scroll yap */
+    table {
+        min-width: 400px;
+    }
+
+    /* Ana sayfa içerik kartları mobilde görünsün */
+    #home-visit-notes-target,
+    #home-customers-body,
+    #activity-table-body {
+        display: block !important;
+    }
 }
+
 
 /* Glassmorphism & Modernization Touches */
 .stat-card, .content-card, .chart-card {

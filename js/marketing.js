@@ -182,4 +182,38 @@ function switchMktTab(tab, el) {
     if (tab === 'analysis') {
         renderMarketingAnalysis();
     }
+    // Segments tab - render segments
+    if (tab === 'segments') {
+        renderMarketingSegments();
+    }
 }
+
+/**
+ * Hedef Kitle (Segment) butonu için - Segmentler sekmesini açar
+ */
+function openMarketingSegmentModal() {
+    // Segmentler sekmesi tab elementini bul ve ona tıkla
+    const tabs = document.querySelectorAll('.marketing-tab');
+    let segTab = null;
+    tabs.forEach(t => {
+        if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'segments'")) {
+            segTab = t;
+        }
+    });
+    if (segTab) {
+        switchMktTab('segments', segTab);
+    } else {
+        // Fallback: segments section'ı direkt göster
+        const segSection = document.getElementById('mkt-segments-section');
+        if (segSection) {
+            document.querySelectorAll('[id$="-section"]').forEach(s => s.style.display = 'none');
+            segSection.style.display = 'block';
+            renderMarketingSegments();
+        }
+    }
+}
+
+function setupWinBackFlow() { alert('Geri Kazanım akışı yakında aktif edilecektir.'); }
+function setupWelcomeFlow() { alert('Hoş Geldin Serisi yakında aktif edilecektir.'); }
+function setupUpsellFlow() { alert('Upsell akışı yakında aktif edilecektir.'); }
+

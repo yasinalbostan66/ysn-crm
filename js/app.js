@@ -52,14 +52,17 @@ async function init() {
         localStorage.setItem('crm_users', JSON.stringify(cleanUsers));
     }
 
-    // Check for persistent session
+    // Check for persistent session (localStorage önce, sonra sessionStorage)
     if (!currentUser) {
-        const persistentSession = localStorage.getItem('crm_user_session');
-        if (persistentSession) {
+        const session = localStorage.getItem('crm_user_session') || sessionStorage.getItem('crm_user_session');
+        if (session) {
             try {
-                currentUser = JSON.parse(persistentSession);
+                currentUser = JSON.parse(session);
+                // Her iki depoya da yaz ki sayfalar arası sorunsuz çalışsın
+                sessionStorage.setItem('crm_user_session', session);
             } catch (e) {
                 localStorage.removeItem('crm_user_session');
+                sessionStorage.removeItem('crm_user_session');
             }
         }
     }
@@ -126,17 +129,10 @@ function showDashboard() {
     if (dash) dash.style.display = 'flex';
 
     if (currentUser) {
-        // Enforce HOME (index.html) on fresh refresh/load as requested
+        // Sayfa yolunu belirle
         const path = window.location.pathname.split('/').pop() || 'index.html';
-        const isIndex = path === 'index.html' || path === '';
-        const sessionKey = 'crm_initial_load_complete';
-
-        if (!isIndex && !sessionStorage.getItem(sessionKey)) {
-            sessionStorage.setItem(sessionKey, 'true');
-            window.location.href = 'index.html';
-            return;
-        }
-        sessionStorage.setItem(sessionKey, 'true');
+        // sessionKey kontrolü - mobilde / GitHub Pages'de isIndex her zaman false olabilir, kaldırdık
+        sessionStorage.setItem('crm_initial_load_complete', 'true');
 
         // Update User Profile in Sidebar
         const userNameEl = document.getElementById('sidemenu-user-name');
