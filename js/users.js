@@ -69,7 +69,13 @@ function handleNewUser(event) {
     const newUser = { name, email, password, role };
     users.push(newUser);
     localStorage.setItem('crm_users', JSON.stringify(users));
-    logActivity('yeni kullanıcı ekledi:', name, { detail: `Rol: ${role}` });
+    
+    try {
+        logActivity('yeni kullanıcı ekledi:', name, { detail: `Rol: ${role}` });
+    } catch (e) {
+        console.warn('Activity log denied:', e);
+    }
+
     loadUsersTable();
     if (typeof closeAddUserModal === 'function') closeAddUserModal();
     event.target.reset();

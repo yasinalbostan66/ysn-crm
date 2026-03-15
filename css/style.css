@@ -998,10 +998,25 @@ tr:hover {
         aspect-ratio: 16 / 9 !important; /* Grafiklerin basık görünmesini kesinlikle önler */
     }
 
-    /* ── Mobil Grid & Kanban Layout Düzeni ── */
+    /* ── Mobil Grid & İki Sütunlu Inline Stil Alanlarını Tek Kolona Çözme ── */
+    div[style*="grid-template-columns: 2fr 1fr"],
+    div[style*="grid-template-columns: 1.5fr 1fr"],
+    div[style*="grid-template-columns: 1fr 1fr"],
     .dashboard-grid-container {
-        grid-template-columns: 1fr !important; /* Muhasebe ve diğer tüm 2li gridleri alt alta yaslar */
-        gap: 1rem !important;
+        grid-template-columns: 1fr !important; /* Muhasebe grafiklerin dikey akmasını kesinleştirir */
+        gap: 1.2rem !important;
+    }
+
+    /* Giriş Kart Sizing Tighter */
+    .auth-card {
+        padding: 1.2rem !important;
+        max-width: 320px !important;
+        margin: auto !important;
+    }
+    
+    .auth-input {
+        padding: 0.6rem !important;
+        font-size: 0.85rem !important;
     }
 
     .kanban-board {
@@ -1021,6 +1036,13 @@ tr:hover {
     #top-nav-bar {
         flex-wrap: wrap !important;
         gap: 0.5rem !important;
+    }
+
+    /* Buton Taşkınlığı Fix */
+    .btn {
+        width: 100% !important; /* Mobil butonlar tam genişlik alır */
+        text-align: center !important;
+        justify-content: center !important;
     }
     #home-visit-notes-target {
         display: flex !important;
