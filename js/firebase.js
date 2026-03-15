@@ -39,14 +39,18 @@ async function initFirebase() {
     getRedirectResult(auth).then((result) => {
       if (result && result.user) {
         const user = result.user;
-        // Uygulama sessionStorage kullandığı için oraya yazıyoruz
-        sessionStorage.setItem('crm_user_session', JSON.stringify({
-          email: user.email,
-          name: user.displayName || 'Kullanıcı',
-          role: 'admin',
-          picture: user.photoURL
-        }));
-        window.location.reload();
+        const currentSession = sessionStorage.getItem('crm_user_session');
+
+        // SADECE oturum yoksa yaz ve sayfayı yenile (Sonsuz döngüyü önler!)
+        if (!currentSession) {
+          sessionStorage.setItem('crm_user_session', JSON.stringify({
+            email: user.email,
+            name: user.displayName || 'Kullanıcı',
+            role: 'admin',
+            picture: user.photoURL
+          }));
+          window.location.reload();
+        }
       }
     }).catch(e => console.warn('[Google Redirect] Hata:', e.message));
 
