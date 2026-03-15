@@ -3,10 +3,9 @@
  * ES Module - tüm cihazlar arası anlık veri senkronizasyonu
  */
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot
-} from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCgt5x8w1V1pviDWVb-QtddS_l9leY1Gw",
@@ -30,6 +29,7 @@ const SYNC_KEYS = [
 ];
 
 let db = null;
+let auth = null;
 let _isWriting = false; // Döngü önleyici
 const _origSetItem = localStorage.setItem.bind(localStorage);
 const _origGetItem = localStorage.getItem.bind(localStorage);
@@ -39,6 +39,15 @@ async function initFirebase() {
   try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    auth = getAuth(app);
+
+    // Bize 'Missing or insufficient permissions' hatası verdiren auth kilidini açmayı dene
+    try {
+      await signInAnonymously(auth);
+      console.log('[Firebase] 🔑 Anonim giriş yapıldı');
+    } catch(err) {
+      console.warn('[Firebase] 🔑 Anonim giriş başarısız (Bypass denenecek):', err.message);
+    }
     console.log('[Firebase] ✅ Bağlantı kuruldu');
 
     // 1. Buluttan veriyi çek ve localStorage'a yaz
