@@ -35,36 +35,28 @@ async function initFirebase() {
     auth = getAuth(app);
     console.log('[Firebase] ✅ Bağlantı kuruldu');
 
-    // Mobil Yönlendirme Sonucunu Yakala
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-        const user = result.user;
-        const currentSession = sessionStorage.getItem('crm_user_session');
-
-        // SADECE oturum yoksa yaz ve sayfayı yenile (Sonsuz döngüyü önler!)
-        if (!currentSession) {
-          sessionStorage.setItem('crm_user_session', JSON.stringify({
-            email: user.email,
-            name: user.displayName || 'Kullanıcı',
-            role: 'admin',
-            picture: user.photoURL
-          }));
-          window.location.reload();
-        }
-      }
-    }).catch(e => console.warn('[Google Redirect] Hata:', e.message));
-
-    // Firebase Auth Değişikliklerini Dinle
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         console.log('[Firebase] 👤 Kullanıcı bağlandı:', user.email);
         
+        const currentSession = sessionStorage.getItem('crm_user_session');
+        // Oturum yoksa eşle ve yenile (Dashboard'u otomatik açar)
+        if (!currentSession) {
+          sessionStorage.setItem('crm_user_session', JSON.stringify({
+            email: user.email,
+            name: user.displayName || 'Google Kullanıcı',
+            role: 'admin',
+            picture: user.photoURL
+          }));
+          window.location.reload();
+          return;
+        }
+
         // Yetkilendirme sağlandıktan hemen sonra verileri çek!
         await pullFromCloud();
-        
         startRealtimeListeners();
       } else {
-        console.log('[Firebase] 👤 Kullanıcı çıkış yaptı veya oturum açmadı.');
+        console.log('[Firebase] 👤 Kullanıcı oturum açmadı.');
       }
     });
 
