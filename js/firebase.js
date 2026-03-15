@@ -5,7 +5,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCgt5x8w1V1pviDWVb-QtddS_l9leY1Gw",
@@ -16,21 +16,14 @@ const firebaseConfig = {
   appId: "1:243748644966:web:e76483bca7ea18b50925a7"
 };
 
-// Senkronize edilecek veri anahtarları
 const SYNC_KEYS = [
-  'crm_customer_data',
-  'crm_visits',
-  'crm_service_requests',
-  'crm_activities',
-  'crm_announcements',
-  'crm_users',
-  'crm_mkt_campaigns',
-  'crm_quotes'
+  'crm_customer_data', 'crm_visits', 'crm_service_requests',
+  'crm_activities', 'crm_announcements', 'crm_users', 'crm_mkt_campaigns', 'crm_quotes'
 ];
 
 let db = null;
 let auth = null;
-let _isWriting = false; // Döngü önleyici
+let _isWriting = false;
 const _origSetItem = localStorage.setItem.bind(localStorage);
 const _origGetItem = localStorage.getItem.bind(localStorage);
 
@@ -40,15 +33,17 @@ async function initFirebase() {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
-
-    // Bize 'Missing or insufficient permissions' hatası verdiren auth kilidini açmayı dene
-    try {
-      await signInAnonymously(auth);
-      console.log('[Firebase] 🔑 Anonim giriş yapıldı');
-    } catch(err) {
-      console.warn('[Firebase] 🔑 Anonim giriş başarısız (Bypass denenecek):', err.message);
-    }
     console.log('[Firebase] ✅ Bağlantı kuruldu');
+
+    // Firebase Auth Değişikliklerini Dinle
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log('[Firebase] 👤 Kullanıcı bağlandı:', user.email);
+        startRealtimeListeners();
+      } else {
+        console.log('[Firebase] 👤 Kullanıcı çıkış yaptı veya oturum açmadı.');
+      }
+    });
 
     // 1. Buluttan veriyi çek ve localStorage'a yaz
     await pullFromCloud();
@@ -214,10 +209,33 @@ async function syncNow() {
   await pullFromCloud(true);
 }
 
+async function loginWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    
+    // Uygulama local session'unu güncelle
+    localStorage.setItem('crm_user_session', JSON.stringify({
+      email: user.email,
+      name: user.displayName || 'Kullanıcı',
+      role: 'admin',
+      picture: user.photoURL
+    }));
+
+    alert(`Hoşgeldiniz, ${user.displayName}!`);
+    window.location.reload(); 
+  } catch (error) {
+    console.error('[Google Auth] Hata:', error.message);
+    alert('Google ile giriş başarısız. Lütfen Firebase Dashboarddan Google Sign-in etkin olduğundan emin olun.');
+  }
+}
+
 // Global erişim
 window.initFirebase  = initFirebase;
 window.syncNow       = syncNow;
 window.pushToCloud   = pushToCloud;
 window.forcePushAllToCloud = forcePushAllToCloud;
+window.loginWithGoogle = loginWithGoogle;
 
 export { initFirebase, syncNow, pushToCloud, forcePushAllToCloud, db };

@@ -61,6 +61,11 @@
                         Hatırla</label>
                 </div>
                 <button type="submit" class="auth-btn" style="margin-top: 0.5rem;">Giriş Yap</button>
+                <div style="text-align: center; margin: 1rem 0; color: #94a3b8; font-size: 0.8rem;">Veya</div>
+                <button type="button" class="auth-btn" style="background: white; color: #1e293b; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="if(typeof window.loginWithGoogle==='function')window.loginWithGoogle()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width: 18px; height: 18px;">
+                     Google ile Giriş Yap
+                </button>
             </form>
 
             <p id="auth-error"
