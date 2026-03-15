@@ -555,11 +555,11 @@ tr:hover {
 .auth-card {
     background: var(--card-bg);
     backdrop-filter: blur(10px);
-    padding: 2.5rem;
-    border-radius: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
     width: 100%;
-    max-width: 400px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-width: 350px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border);
 }
 

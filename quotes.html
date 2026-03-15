@@ -223,17 +223,8 @@
                 <p style="color: var(--text-light); font-weight: 500;">Profesyonel proforma teklifler hazırlayın.</p>
             </div>
 
-            <div class="nav-tabs">
-                <div class="nav-tab active" id="tab-pool" onclick="switchTab('pool')">
-                    <i class="fa-solid fa-folder-open"></i> Dosya Havuzu
-                </div>
-                <div class="nav-tab" id="tab-generator" onclick="switchTab('generator')">
-                    <i class="fa-solid fa-file-signature"></i> Profesyonel Teklif Hazırla
-                </div>
-            </div>
-
-            <!-- TAB 1: FILE POOL -->
-            <div id="pool-view" class="tab-content">
+<!-- Tab Bar Kaldırıldı -->
+<div id="pool-view" class="tab-content" style="display:block;">
                 <div
                     style="display: flex; justify-content: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem;">
                     <button class="btn btn-primary" onclick="document.getElementById('quote-file-input').click()">
@@ -244,45 +235,6 @@
                         <i class="fa-solid fa-file-signature"></i> Yeni Sözleşme / Belge Oluştur
                     </button>
                     <input type="file" id="quote-file-input" style="display: none;" onchange="handleQuoteUpload(event)">
-                </div>
-
-                <div
-                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #ff4d4d; text-align: center;"
-                        onclick="filterQuotes('Sunthinks')">
-                        <h4 style="font-size:0.85rem;">Sunthinks</h4>
-                    </div>
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #34A853; text-align: center;"
-                        onclick="filterQuotes('Aobead Pulisi')">
-                        <h4 style="font-size:0.85rem;">Aobead Pulisi</h4>
-                    </div>
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #FBBC05; text-align: center;"
-                        onclick="filterQuotes('Robotjet')">
-                        <h4 style="font-size:0.85rem;">Robotjet</h4>
-                    </div>
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #6366f1; text-align: center;"
-                        onclick="filterQuotes('Kingt')">
-                        <h4 style="font-size:0.85rem;">Kingt</h4>
-                    </div>
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #ec4899; text-align: center;"
-                        onclick="filterQuotes('Anypack')">
-                        <h4 style="font-size:0.85rem;">Anypack</h4>
-                    </div>
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid #14b8a6; text-align: center;"
-                        onclick="filterQuotes('Top CNC')">
-                        <h4 style="font-size:0.85rem;">Top CNC</h4>
-                    </div>
-                    <div class="stat-card"
-                        style="padding: 0.75rem; cursor: pointer; border-left: 4px solid var(--border); text-align: center;"
-                        onclick="filterQuotes('')">
-                        <h4 style="font-size:0.85rem;">Tümü</h4>
-                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
