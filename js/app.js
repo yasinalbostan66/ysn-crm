@@ -3,6 +3,13 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Firebase modülünün yüklenmesini bekle (race condition önleyici)
+    let retry = 0;
+    while (typeof initFirebase !== 'function' && retry < 20) {
+        await new Promise(r => setTimeout(r, 50));
+        retry++;
+    }
+
     // Firebase bulut senkronizasyonu - önce çalıştır
     if (typeof initFirebase === 'function') {
         try {
