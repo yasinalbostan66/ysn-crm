@@ -1008,7 +1008,13 @@ tr:hover {
     #sync-indicator {
         font-size: 0.7rem;
     }
+
+    /* Menünün daha ferah olması için Aktif Kullanıcılar panelini mobilde gizle */
+    #users-status-pane {
+        display: none !important;
+    }
 }
+
 
 /* ═══════════════════════════════════════════════════
    KÜÇÜK TELEFON (480px ve altı)
