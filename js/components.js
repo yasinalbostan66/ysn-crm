@@ -183,6 +183,10 @@ function renderTopNavBar() {
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
+            <!-- Top Nav Pair Device Icon -->
+            <button onclick="document.getElementById('pair-modal').style.display='flex'; if(typeof window.initWebRTC==='function')window.initWebRTC();" title="Cihaz Eşle" style="background: rgba(107, 33, 168, 0.1); border: 1px solid rgba(107, 33, 168, 0.2); color: #6b21a8; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 800;" class="no-print">
+                 <i class="fa-solid fa-link"></i> <span class="nav-history-btns">Cihaz Eşle</span>
+            </button>
             <div style="text-align: right; line-height: 1.2;">
                 <img src="img/logo.png" style="height: 75px; width: auto; opacity: 1;">
             </div>
