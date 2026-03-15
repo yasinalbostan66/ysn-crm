@@ -50,17 +50,18 @@ async function initFirebase() {
     }).catch(e => console.warn('[Google Redirect] Hata:', e.message));
 
     // Firebase Auth Değişikliklerini Dinle
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         console.log('[Firebase] 👤 Kullanıcı bağlandı:', user.email);
+        
+        // Yetkilendirme sağlandıktan hemen sonra verileri çek!
+        await pullFromCloud();
+        
         startRealtimeListeners();
       } else {
         console.log('[Firebase] 👤 Kullanıcı çıkış yaptı veya oturum açmadı.');
       }
     });
-
-    // 1. Buluttan veriyi çek ve localStorage'a yaz
-    await pullFromCloud();
 
     // 2. localStorage.setItem'ı override et → her kayıtta buluta gönder
     localStorage.setItem = function(key, value) {
