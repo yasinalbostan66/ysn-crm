@@ -222,6 +222,9 @@ async function forcePushAllToCloud() {
 async function syncNow() {
   // Manuel tıklandığında force = true yaparak zorunlu çekeriz
   await pullFromCloud(true);
+  
+  // Tablolardaki (in-memory) eski verilerin tamamen yenilenebilmesi için sayfayı reload et
+  window.location.reload();
 }
 
 async function loginWithGoogle() {
