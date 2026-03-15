@@ -81,10 +81,10 @@ function renderSidebar() {
                 </div>
 
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-                    <button onclick="if(typeof syncNow==='function')syncNow();" title="Verileri Senkronize Et" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.5rem; border-radius: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700;">
+                    <button onclick="if(typeof window.syncNow==='function')window.syncNow();" title="Verileri Senkronize Et" style="flex: 1; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.5rem; border-radius: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700;">
                         <i class="fa-solid fa-rotate"></i> ÇEK
                     </button>
-                    <button onclick="if(typeof forcePushAllToCloud==='function')forcePushAllToCloud();" title="Tüm Verileri Buluta Yükle" style="flex: 1; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); color: #2563eb; padding: 0.5rem; border-radius: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700;">
+                    <button onclick="if(typeof window.forcePushAllToCloud==='function')window.forcePushAllToCloud();" title="Tüm Verileri Buluta Yükle" style="flex: 1; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); color: #2563eb; padding: 0.5rem; border-radius: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700;">
                         <i class="fa-solid fa-cloud-arrow-up"></i> YÜKLE
                     </button>
                 </div>

@@ -25,7 +25,8 @@ const SYNC_KEYS = [
   'crm_activities',
   'crm_announcements',
   'crm_users',
-  'crm_mkt_campaigns'
+  'crm_mkt_campaigns',
+  'crm_quotes'
 ];
 
 let db = null;

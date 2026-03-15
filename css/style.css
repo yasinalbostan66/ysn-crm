@@ -1009,9 +1009,29 @@ tr:hover {
         font-size: 0.7rem;
     }
 
-    /* Menünün daha ferah olması için Aktif Kullanıcılar panelini mobilde gizle */
-    #users-status-pane {
-        display: none !important;
+    /* Grafikler Basık Görünmesin */
+    .charts-grid canvas,
+    .dashboard-grid-container canvas,
+    canvas {
+        min-height: 240px !important;
+    }
+
+    /* Tablo Kartları Mobilde Sağ Sol Scroll Olsun, Kesilmesin */
+    .content-card {
+        overflow-x: auto !important;
+    }
+
+    /* Teklif Editörü A4 formatı mobilde sığsın */
+    .proforma-editor {
+        width: 100% !important;
+        min-width: unset !important;
+        padding: 5mm !important;
+        min-height: auto !important;
+        overflow-x: auto;
+    }
+    
+    .editor-section {
+        flex-direction: column !important;
     }
 }
 
