@@ -89,13 +89,6 @@ function renderSidebar() {
                     </button>
                 </div>
 
-                <!-- WebRTC Peer Sync -->
-                <div style="margin-bottom: 0.75rem;" class="no-print">
-                    <button onclick="document.getElementById('pair-modal').style.display='flex'; if(typeof window.initWebRTC==='function')window.initWebRTC();" style="width: 100%; background: #6b21a8; color: white; border: none; padding: 0.6rem; border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 12px rgba(107, 33, 168, 0.2);">
-                        <i class="fa-solid fa-link"></i> Kablosuz Cihaz Eşle
-                    </button>
-                </div>
-
                 <div style="display: flex; gap: 0.5rem;">
                     <button onclick="toggleTheme()" title="Temayı Değiştir" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                         <i class="fa-solid fa-circle-half-stroke" style="font-size: 0.9rem;"></i>
@@ -110,30 +103,6 @@ function renderSidebar() {
     `;
 
     sidebarTarget.innerHTML = html;
-
-    // WebRTC Eşleme Modalı enjekte et (Eğer yoksa)
-    if (!document.getElementById('pair-modal')) {
-        const modalHTML = `
-            <div id="pair-modal" class="modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; padding: 1rem;">
-                <div class="modal-content" style="max-width: 400px; width: 100%; text-align: center; background: var(--card-bg); border-radius: 1.5rem; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--shadow-lg); animation: slideUp 0.3s ease;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h2 style="margin:0; font-size: 1.2rem; font-weight: 800; color: var(--text);">Cihaz Eşleme (Canlı)</h2>
-                        <i class="fa-solid fa-times" style="cursor: pointer; font-size: 1.25rem; color: var(--text-light);" onclick="document.getElementById('pair-modal').style.display='none'"></i>
-                    </div>
-                    
-                    <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.75rem;">Bu cihazın Kodunu diğer cihazına yaz:</p>
-                    <div id="my-pair-code" style="font-size: 2rem; font-weight: 900; color: #6b21a8; background: rgba(107, 33, 168, 0.08); padding: 1rem; border-radius: 1rem; letter-spacing: 3px; margin-bottom: 1.5rem; border: 1px dashed rgba(107, 33, 168, 0.3);">----</div>
-                    
-                    <div style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
-                        <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.5rem;">Veya Diğer Cihazın Kodunu Girin:</p>
-                        <input type="text" id="target-pair-code" placeholder="4 Haneli Kod" maxlength="4" style="text-align: center; font-size: 1.5rem; font-weight: 800; padding: 0.75rem; width: 100%; border-radius: 0.75rem; border: 2px solid var(--border); outline: none; background: rgba(0,0,0,0.02); color: var(--text); margin-bottom: 1rem;">
-                        <button class="btn btn-primary" style="width: 100%; font-weight: 800; padding: 0.75rem;" onclick="if(typeof window.connectToPeer==='function')window.connectToPeer()">🔗 BAĞLAN</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-    }
 
     if (typeof updateUsersStatusPane === 'function') updateUsersStatusPane();
 }
@@ -183,10 +152,6 @@ function renderTopNavBar() {
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <!-- Top Nav Pair Device Icon -->
-            <button onclick="document.getElementById('pair-modal').style.display='flex'; if(typeof window.initWebRTC==='function')window.initWebRTC();" title="Cihaz Eşle" style="background: rgba(107, 33, 168, 0.1); border: 1px solid rgba(107, 33, 168, 0.2); color: #6b21a8; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 800;" class="no-print">
-                 <i class="fa-solid fa-link"></i> <span class="nav-history-btns">Cihaz Eşle</span>
-            </button>
             <div style="text-align: right; line-height: 1.2;">
                 <img src="img/logo.png" style="height: 75px; width: auto; opacity: 1;">
             </div>
