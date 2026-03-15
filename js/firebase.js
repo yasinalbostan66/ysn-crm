@@ -5,7 +5,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCgt5x8w1V1pviDWVb-QtddS_l9leY1Gw",
@@ -34,6 +34,20 @@ async function initFirebase() {
     db = getFirestore(app);
     auth = getAuth(app);
     console.log('[Firebase] ✅ Bağlantı kuruldu');
+
+    // Mobil Yönlendirme Sonucunu Yakala
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        const user = result.user;
+        localStorage.setItem('crm_user_session', JSON.stringify({
+          email: user.email,
+          name: user.displayName || 'Kullanıcı',
+          role: 'admin',
+          picture: user.photoURL
+        }));
+        if (typeof refreshApp === 'function') refreshApp();
+      }
+    }).catch(e => console.warn('[Google Redirect] Hata:', e.message));
 
     // Firebase Auth Değişikliklerini Dinle
     auth.onAuthStateChanged((user) => {
@@ -211,23 +225,29 @@ async function syncNow() {
 
 async function loginWithGoogle() {
   const provider = new GoogleAuthProvider();
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    
-    // Uygulama local session'unu güncelle
-    localStorage.setItem('crm_user_session', JSON.stringify({
-      email: user.email,
-      name: user.displayName || 'Kullanıcı',
-      role: 'admin',
-      picture: user.photoURL
-    }));
+    if (isMobile) {
+      // Mobil cihazlarda popup engellemeyi aşmak için yönlendirme kullan
+      await signInWithRedirect(auth, provider);
+    } else {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      localStorage.setItem('crm_user_session', JSON.stringify({
+        email: user.email,
+        name: user.displayName || 'Kullanıcı',
+        role: 'admin',
+        picture: user.photoURL
+      }));
 
-    alert(`Hoşgeldiniz, ${user.displayName}!`);
-    window.location.reload(); 
+      alert(`Hoşgeldiniz, ${user.displayName}!`);
+      window.location.reload(); 
+    }
   } catch (error) {
     console.error('[Google Auth] Hata:', error.message);
-    alert('Google ile giriş başarısız. Lütfen Firebase Dashboarddan Google Sign-in etkin olduğundan emin olun.');
+    alert('Google ile giriş başarısız. Lütfen tekrar deneyin.');
   }
 }
 
