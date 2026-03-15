@@ -998,7 +998,30 @@ tr:hover {
         aspect-ratio: 16 / 9 !important; /* Grafiklerin basık görünmesini kesinlikle önler */
     }
 
-    /* ── Ziyaret Notları ── */
+    /* ── Mobil Grid & Kanban Layout Düzeni ── */
+    .dashboard-grid-container {
+        grid-template-columns: 1fr !important; /* Muhasebe ve diğer tüm 2li gridleri alt alta yaslar */
+        gap: 1rem !important;
+    }
+
+    .kanban-board {
+        flex-direction: column !important; /* Satış Evrelerini aşağı doğru listeler */
+        gap: 1.5rem !important;
+    }
+
+    .kanban-column {
+        min-width: 100% !important;
+    }
+
+    .content-card {
+        width: 100% !important;
+        overflow-x: auto !important; /* Ziyaret ve Firma verileri sağa kayar */
+    }
+
+    #top-nav-bar {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
     #home-visit-notes-target {
         display: flex !important;
         flex-direction: column;

@@ -2,6 +2,16 @@
  * users.js - User management and status pane 
  */
 
+function openAddUserModal() {
+    const modal = document.getElementById('add-user-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeAddUserModal() {
+    const modal = document.getElementById('add-user-modal');
+    if (modal) modal.style.display = 'none';
+}
+
 function loadUsersTable() {
     const tableBody = document.getElementById('users-table-body');
     if (!tableBody) return;
@@ -61,6 +71,7 @@ function handleNewUser(event) {
     localStorage.setItem('crm_users', JSON.stringify(users));
     logActivity('yeni kullanıcı ekledi:', name, { detail: `Rol: ${role}` });
     loadUsersTable();
+    if (typeof closeAddUserModal === 'function') closeAddUserModal();
     event.target.reset();
 }
 

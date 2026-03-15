@@ -87,7 +87,7 @@ function loadServiceTable() {
                     labels: Object.keys(statusCounts),
                     datasets: [{
                         data: Object.values(statusCounts).every(v => v === 0) ? [1, 1, 1] : Object.values(statusCounts),
-                        backgroundColor: Object.values(statusCounts).every(v => v === 0) ? ['rgba(239, 68, 68, 0.2)', 'rgba(16, 185, 129, 0.2)', 'rgba(245, 158, 11, 0.2)'] : ['#ef4444', '#10b981', '#f59e0b'],
+                        backgroundColor: ['#ef4444', '#10b981', '#f59e0b'],
                         borderWidth: 0
                     }]
                 },
