@@ -169,20 +169,21 @@ SYNC_KEYS.forEach(key => {
     const localTs   = parseInt(_origGetItem(key + '_ts') || '0');
 
     if (cloudTs > localTs + 500) {
-      setSyncStatus(true, 'Buluttan güncelleme...');
       _isWriting = true;
       _origSetItem(key, JSON.stringify(cloudData));
       _origSetItem(key + '_ts', String(cloudTs));
       _isWriting = false;
 
-      if (key === 'crm_customer_data' && typeof customerData !== 'undefined') {
-        try {
-          customerData.length = 0;
-          cloudData.forEach(item => customerData.push(item));
-        } catch(e) {}
+      const activeEl = document.activeElement;
+      const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+
+      if (!isTyping) {
+        // Kullanıcı yazı yazmıyorsa otomatik canlandır (Sonsuz döngü olmaz çünkü _ts güncel)
+        window.location.reload();
+      } else {
+        setSyncStatus(true, 'Yeni veri alındı, yazmayı bitirince yenilenecek.');
+        setTimeout(() => setSyncStatus(false), 2000);
       }
-      if (typeof refreshApp === 'function') refreshApp();
-      setSyncStatus(false);
     }
   });
 });
