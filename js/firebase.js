@@ -77,45 +77,49 @@ function setSyncStatus(visible, text = 'Senkronize ediliyor...') {
 }
 
 // ─── Buluttan Çek ────────────────────────────────────────────────────────────
-async function pullFromCloud() {
+async function pullFromCloud(force = false) {
   if (!db) return;
-  setSyncStatus(true, 'Veriler alınıyor...');
+  setSyncStatus(true, force ? 'Buluttan zorla çekiliyor...' : 'Veriler alınıyor...');
   let pulled = 0;
   for (const key of SYNC_KEYS) {
     try {
-    const ref = doc(db, 'crm_data', key);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const cloudData = snap.data().value;
-      const cloudTs   = snap.data().updatedAt || 0;
-      const localRaw  = _origGetItem(key);
-      const localTs   = parseInt(_origGetItem(key + '_ts') || '0');
+      const ref = doc(db, 'crm_data', key);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const cloudData = snap.data().value;
+        const cloudTs   = snap.data().updatedAt || 0;
+        const localRaw  = _origGetItem(key);
+        const localTs   = parseInt(_origGetItem(key + '_ts') || '0');
 
-      if (!localRaw || cloudTs > localTs) {
-        _isWriting = true;
-        _origSetItem(key, JSON.stringify(cloudData));
-        _origSetItem(key + '_ts', String(cloudTs));
-        _isWriting = false;
-        pulled++;
+        // force = true ise tarih kontrolü yapmadan üzerine yazar
+        if (force || !localRaw || cloudTs > localTs) {
+          _isWriting = true;
+          _origSetItem(key, JSON.stringify(cloudData));
+          _origSetItem(key + '_ts', String(cloudTs));
+          _isWriting = false;
+          pulled++;
+        }
       }
+    } catch (e) {
+      console.warn(`[Firebase] ${key} çekerken hata:`, e.message);
     }
-  } catch (e) {
-    console.warn(`[Firebase] ${key} çekerken hata:`, e.message);
   }
-}
-setSyncStatus(false);
+  setSyncStatus(false);
 
-if (pulled > 0) {
-  try {
-    const raw = _origGetItem('crm_customer_data');
-    if (raw && typeof customerData !== 'undefined') {
-      const parsed = JSON.parse(raw);
-      customerData.length = 0;
-      parsed.forEach(item => customerData.push(item));
-    }
-  } catch(e) {}
-  setTimeout(() => { if (typeof refreshApp === 'function') refreshApp(); }, 100);
-}
+  if (pulled > 0) {
+    try {
+      const raw = _origGetItem('crm_customer_data');
+      if (raw && typeof customerData !== 'undefined') {
+        const parsed = JSON.parse(raw);
+        customerData.length = 0;
+        parsed.forEach(item => customerData.push(item));
+      }
+    } catch(e) {}
+    setTimeout(() => { if (typeof refreshApp === 'function') refreshApp(); }, 100);
+    if (force) alert('Tüm veriler buluttan başarıyla çekildi ve güncellendi!');
+  } else if (force) {
+    alert('Zaten tüm verileriniz güncel gözüküyor.');
+  }
 }
 
 // ─── Buluta Gönder ───────────────────────────────────────────────────────────
@@ -197,7 +201,8 @@ async function forcePushAllToCloud() {
 }
 
 async function syncNow() {
-  await pullFromCloud();
+  // Manuel tıklandığında force = true yaparak zorunlu çekeriz
+  await pullFromCloud(true);
 }
 
 // Global erişim
