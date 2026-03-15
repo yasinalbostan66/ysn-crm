@@ -168,7 +168,8 @@ SYNC_KEYS.forEach(key => {
     const cloudTs   = snap.data().updatedAt || 0;
     const localTs   = parseInt(_origGetItem(key + '_ts') || '0');
 
-    if (cloudTs > localTs + 500) {
+    // Tarih büyüklüğü yerine sadece data değişikliğini kontrol etmek çakışmaları (saat farkı) önler
+    if (cloudTs !== localTs) {
       _isWriting = true;
       _origSetItem(key, JSON.stringify(cloudData));
       _origSetItem(key + '_ts', String(cloudTs));
