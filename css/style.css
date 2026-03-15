@@ -992,9 +992,10 @@ tr:hover {
     }
 
     /* ── Auth Ekranı ── */
-    .auth-card {
-        margin: 1rem;
-        padding: 1.5rem;
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9 !important; /* Grafiklerin basık görünmesini kesinlikle önler */
     }
 
     /* ── Ziyaret Notları ── */
